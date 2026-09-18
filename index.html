@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E2A25">
+<title>نواقص الصيدلية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0E2A25; --paper:#F6F5F1; --card:#FFFFFF; --line:#E1E6E2;
+  --green:#146E5B; --green-soft:#E6F1ED; --alert:#B3261E; --alert-soft:#FBEBEA;
+  --muted:#6B7A74; --amber:#8A5A00; --amber-soft:#FBF1DC;
+  --r:10px; --shadow:0 1px 0 rgba(14,42,37,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;
+  background:var(--paper); color:var(--ink);
+  font-size:15px; line-height:1.6;
+  -webkit-text-size-adjust:100%;
+  padding-bottom:86px;
+}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px;border-radius:4px}
+.num{font-variant-numeric:tabular-nums;direction:ltr;display:inline-block}
+.en{direction:ltr;unicode-bidi:isolate}
+
+/* ---------- top ---------- */
+header{
+  position:sticky;top:0;z-index:40;background:var(--ink);color:#EAF2EF;
+  padding:12px 14px 0; padding-top:max(12px,env(safe-area-inset-top));
+}
+.brandrow{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.brand{font-weight:700;font-size:17px;letter-spacing:-.01em}
+.today{font-size:13px;color:#9DB8B0;margin-inline-start:auto}
+.status{font-size:11.5px;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.1);color:#B9D3CB}
+.status.on{background:#1E4F44;color:#8FE0C8}
+.status.off{background:#4A2F2C;color:#F0B3AE}
+nav{display:flex;gap:2px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{
+  padding:9px 14px;color:#9DB8B0;font-size:14px;font-weight:500;white-space:nowrap;
+  border-bottom:2.5px solid transparent;
+}
+nav button[aria-current="true"]{color:#fff;border-bottom-color:#6FD2B4}
+
+main{max-width:760px;margin:0 auto;padding:14px}
+.view{display:none}
+.view.on{display:block}
+
+/* ---------- search + filters ---------- */
+.searchwrap{position:relative;margin-bottom:10px}
+.searchwrap input{padding-inline:40px 86px !important;
+  width:100%;padding:13px 42px 13px 14px;border:1px solid var(--line);
+  border-radius:var(--r);background:var(--card);box-shadow:var(--shadow);
+}
+.searchwrap input::placeholder{color:#9AA8A2}
+.searchwrap .ico{position:absolute;inset-inline-end:14px;top:50%;transform:translateY(-50%);color:#9AA8A2;pointer-events:none}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none;margin-bottom:6px}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  padding:6px 12px;border:1px solid var(--line);border-radius:99px;background:var(--card);
+  font-size:13px;white-space:nowrap;color:var(--muted)
+}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip .c{font-size:11px;opacity:.6;margin-inline-start:4px}
+
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+select.sel{padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+.count{font-size:13px;color:var(--muted);margin-inline-start:auto}
+
+/* ---------- item rows ---------- */
+.list{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+.row{display:flex;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid var(--line);position:relative}
+.row:last-child{border-bottom:0}
+.row.picked{background:var(--green-soft)}
+.row.picked::before{content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:3px;background:var(--green)}
+.row.zero{background:var(--alert-soft)}
+.row.zero::before{background:var(--alert)}
+.row.picked{flex-direction:column;align-items:stretch;gap:9px}
+.row .top{display:flex;align-items:flex-start;gap:8px;width:100%}
+.rm{width:26px;height:26px;border-radius:99px;background:rgba(0,0,0,.05);color:var(--muted);
+  font-size:13px;display:grid;place-items:center;flex-shrink:0}
+.qrow{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
+.qrow .lbl{font-size:12.5px;color:var(--muted);width:40px;flex-shrink:0}
+.qrow.h .lbl{color:var(--alert)}
+.qrow .stepper button{width:30px}
+.qrow .stepper .q{min-width:30px}
+.ul{font-size:12px;color:var(--muted);flex-shrink:0;min-width:26px}
+.ubtn{height:34px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:#fff;
+  font-size:13px;color:var(--muted);font-weight:500;flex-shrink:0}
+.ubtn.strip{border-color:#C6B79A;color:var(--amber);background:var(--amber-soft)}
+.qhint{font-size:12px;color:var(--muted);padding-inline-start:46px;margin-top:-3px}
+.qhint.z{color:var(--alert);font-weight:600}
+.zflag{display:inline-block;font-size:11px;font-weight:600;color:var(--alert);background:#fff;
+  border:1px solid #E9C3C0;border-radius:99px;padding:1px 7px;margin-inline-start:6px;vertical-align:middle}
+.row .info{flex:1;min-width:0}
+.row .nm{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .meta{font-size:11.5px;color:var(--muted);display:flex;gap:8px;margin-top:1px}
+.row .meta b{font-weight:500;color:var(--amber)}
+.stepper{display:flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff;flex-shrink:0}
+.stepper button{width:34px;height:34px;font-size:17px;font-weight:600;color:var(--green);display:grid;place-items:center}
+.stepper button:disabled{color:#C7D2CD}
+.stepper .q{min-width:34px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums;border-inline:1px solid var(--line);height:34px;line-height:34px;font-size:14px}
+.row.picked .stepper{border-color:var(--green)}
+.add{padding:8px 14px;border-radius:8px;background:var(--green-soft);color:var(--green);font-weight:600;font-size:13.5px;flex-shrink:0}
+
+.empty{padding:34px 20px;text-align:center;color:var(--muted);font-size:14px}
+.empty b{display:block;color:var(--ink);font-weight:600;margin-bottom:4px;font-size:15px}
+
+/* ---------- bottom bar ---------- */
+.bar{
+  position:fixed;inset-inline:0;bottom:0;z-index:50;background:var(--card);
+  border-top:1px solid var(--line);padding:10px 14px;
+  padding-bottom:max(10px,env(safe-area-inset-bottom));
+  display:flex;gap:10px;align-items:center;
+  box-shadow:0 -2px 14px rgba(14,42,37,.07)
+}
+.bar .sum{flex:1;font-size:13px;color:var(--muted);line-height:1.35}
+.bar .sum b{display:block;color:var(--ink);font-size:15px;font-weight:600}
+.btn{padding:11px 18px;border-radius:9px;font-weight:600;font-size:14.5px;background:var(--ink);color:#fff}
+.btn.ghost{background:var(--paper);color:var(--ink);border:1px solid var(--line)}
+.btn.green{background:var(--green)}
+.btn.wa{background:#1DA851;color:#fff}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.sm{padding:8px 13px;font-size:13.5px}
+.btn.danger{background:var(--alert-soft);color:var(--alert)}
+
+/* ---------- sheet / modal ---------- */
+.scrim{position:fixed;inset:0;background:rgba(14,42,37,.45);z-index:60;display:none}
+.scrim.on{display:block}
+.sheet{
+  position:fixed;inset-inline:0;bottom:0;z-index:70;background:var(--paper);
+  border-radius:16px 16px 0 0;max-height:88vh;display:none;flex-direction:column;
+  max-width:760px;margin:0 auto;
+}
+.sheet.on{display:flex}
+.sheet h2{margin:0;font-size:16px;font-weight:600}
+.sheet .head{display:flex;align-items:center;gap:10px;padding:14px;border-bottom:1px solid var(--line);background:var(--card);border-radius:16px 16px 0 0}
+.sheet .body{overflow:auto;padding:14px;flex:1}
+.sheet .foot{padding:12px 14px;padding-bottom:max(12px,env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--card);display:flex;gap:8px;flex-wrap:wrap}
+.x{margin-inline-start:auto;width:30px;height:30px;border-radius:99px;background:var(--paper);display:grid;place-items:center;font-size:16px;color:var(--muted)}
+
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:5px}
+.field input,.field select,.field textarea{
+  width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card)
+}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ---------- archive / stats ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px;margin-bottom:10px;box-shadow:var(--shadow)}
+.card .t{display:flex;align-items:baseline;gap:8px}
+.card .t b{font-size:15px}
+.card .t span{font-size:12.5px;color:var(--muted);margin-inline-start:auto}
+.card .p{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card .acts{display:flex;gap:6px;margin-top:11px;flex-wrap:wrap}
+
+.stat{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.stat:last-child{border-bottom:0}
+.stat .rank{width:22px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.stat .nm{flex:1;font-size:14px}
+.stat .meter{width:92px;height:7px;background:var(--paper);border-radius:99px;overflow:hidden}
+.stat .meter i{display:block;height:100%;background:var(--green)}
+.stat .v{width:34px;text-align:end;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+
+.banner{background:var(--amber-soft);border:1px solid #E8D5A8;color:var(--amber);padding:10px 13px;border-radius:var(--r);font-size:13px;margin-bottom:12px;line-height:1.55}
+.banner a{color:inherit}
+.toast{
+  position:fixed;bottom:96px;inset-inline:0;margin:0 auto;width:max-content;max-width:88%;
+  background:var(--ink);color:#fff;padding:10px 18px;border-radius:99px;font-size:14px;z-index:90;
+  opacity:0;transform:translateY(8px);transition:.22s;pointer-events:none
+}
+.toast.on{opacity:1;transform:none}
+hr.sep{border:0;border-top:1px solid var(--line);margin:16px 0}
+h3.sec{font-size:13px;color:var(--muted);font-weight:600;margin:18px 0 8px}
+
+/* ---------- print ---------- */
+#print{display:none}
+@media print{
+  body{background:#fff;padding:0}
+  header,nav,.bar,.view,main,.sheet,.scrim,.toast{display:none !important}
+  #print{display:block;padding:0;font-size:12px;color:#000}
+  @page{size:A4;margin:14mm 12mm}
+  #print .ph{display:flex;align-items:flex-end;border-bottom:2px solid #0E2A25;padding-bottom:8px;margin-bottom:4px}
+  #print .ph h1{margin:0;font-size:19px}
+  #print .ph .d{margin-inline-start:auto;text-align:end;font-size:11.5px;line-height:1.5}
+  #print .note{font-size:11px;color:#444;margin:8px 0 12px}
+  #print table{width:100%;border-collapse:collapse;margin-top:8px}
+  #print th{background:#EDF2F0;font-size:11px;text-align:start;padding:6px 8px;border:1px solid #BCCBC5;font-weight:600}
+  #print td{padding:5px 8px;border:1px solid #D6DEDA;font-size:11.5px}
+  #print tr{break-inside:avoid}
+  #print .q{text-align:center;font-weight:700;width:74px;font-variant-numeric:tabular-nums}
+  #print .zcat{background:#FBE7E5;color:#B3261E}
+  #print .i{text-align:center;width:34px;color:#666}
+  #print .cat{font-weight:700;background:#F4F7F6;font-size:11.5px}
+  #print .z{font-weight:700;color:#B3261E;font-size:10.5px;margin-inline-start:5px;white-space:nowrap}
+  #print tr.zrow td{background:#FCF0EF}
+  #print .bang{color:#B3261E;font-weight:700}
+  #print .foot{margin-top:14px;padding-top:7px;border-top:1px solid #BCCBC5;font-size:11px;display:flex}
+  #print .foot span:last-child{margin-inline-start:auto}
+}
+
+/* ================= additions v2 ================= */
+.searchwrap .ico{inset-inline-end:auto;inset-inline-start:14px}
+.searchwrap input::-webkit-search-cancel-button{display:none}
+.sbtns{position:absolute;inset-inline-end:5px;top:50%;transform:translateY(-50%);display:flex;gap:2px}
+.sbtns button{width:38px;height:38px;border-radius:8px;color:var(--muted);display:grid;place-items:center;font-size:15px}
+.sbtns button[hidden]{display:none}
+.sbtns .mic{color:var(--green)}
+.sbtns .mic.on{background:var(--alert-soft);color:var(--alert)}
+.sbtns svg{width:19px;height:19px}
+.row .meta .h{color:var(--green)}
+.chip.spec{border-color:#BFD9CF;color:var(--green)}
+.chip.spec.due{border-color:#E3CD9C;color:var(--amber)}
+.chip.spec[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
+.chip.spec.due[aria-pressed="true"]{background:var(--amber);border-color:var(--amber);color:#fff}
+
+.remind{background:var(--card);border:1px solid var(--line);border-inline-start:4px solid var(--amber);border-radius:var(--r);padding:11px 13px;margin-bottom:12px;font-size:13.5px;line-height:1.6}
+.remind.info{border-inline-start-color:var(--green)}
+.remind b{font-weight:600}
+.remind .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.hint{font-size:12.5px;color:var(--muted);margin-top:10px}
+
+em.pill{font-style:normal;font-size:11px;padding:1px 9px;border-radius:99px;font-weight:600;white-space:nowrap}
+.pill.open{background:var(--green-soft);color:var(--green)}
+.pill.sent{background:#E3ECF6;color:#1F4E7A}
+.pill.recv{background:var(--ink);color:#fff}
+.pill.auto{background:var(--amber-soft);color:var(--amber)}
+.pill.old{background:var(--paper);color:var(--muted);border:1px solid var(--line)}
+.card .cnt{font-size:12px;color:var(--muted);margin-top:4px}
+.card .cnt .zz{color:var(--alert);font-weight:600}
+.card mark{background:#FFF1B8;color:inherit;border-radius:3px;padding:0 2px}
+.mhead{display:flex;align-items:baseline;font-size:13px;color:var(--ink);font-weight:600;margin:18px 2px 8px}
+.mhead span{margin-inline-start:auto;font-weight:400;color:var(--muted);font-size:12px}
+.emptyday{display:flex;font-size:12.5px;color:var(--muted);padding:7px 13px;border:1px dashed var(--line);border-radius:var(--r);margin-bottom:8px}
+.emptyday span{margin-inline-start:auto}
+.sumline{font-size:13px;color:var(--muted);margin:4px 2px 0}
+.sumline b{color:var(--ink);font-weight:600}
+
+.filters .chips{margin-bottom:4px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fgrid .full{grid-column:1/-1}
+.filters select,.filters input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);min-width:0}
+.filters .dates{display:none;grid-column:1/-1;grid-template-columns:1fr 1fr;gap:8px}
+.filters .dates.on{display:grid}
+.filters .dates label{font-size:12px;color:var(--muted)}
+.chk{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.chk input{width:auto !important}
+.linkbtn{font-size:12.5px;color:var(--green);font-weight:600;padding:4px 2px}
+
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
+@media (min-width:560px){.kpis{grid-template-columns:repeat(4,1fr)}}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:11px 12px}
+.kpi b{display:block;font-size:23px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.25}
+.kpi span{font-size:12px;color:var(--muted)}
+.kpi em{display:block;font-style:normal;font-size:11.5px;font-weight:600;margin-top:2px;color:var(--muted)}
+.kpi em.up{color:var(--alert)} .kpi em.down{color:var(--green)}
+.chart{display:flex;align-items:flex-end;gap:2px;height:120px}
+.chart .col{flex:1;height:100%;display:flex;align-items:flex-end;min-width:0}
+.chart .col i{display:block;width:100%;background:var(--green);border-radius:3px 3px 0 0;min-height:2px}
+.chart .col i.zero{background:#D5DDDA}
+.chart .col.today i{background:var(--amber)}
+.chart.wide{gap:6px}
+.lbls{display:flex;gap:2px;margin-top:5px}
+.chart.wide + .lbls{gap:6px}
+.lbls span{flex:1;min-width:0;text-align:center;font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden}
+.axis{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:5px}
+.stat.click{cursor:pointer}
+.stat .nm small{display:block;font-size:11.5px;color:var(--muted);direction:rtl}
+.stat .addq{padding:5px 11px;border-radius:7px;background:var(--green-soft);color:var(--green);font-weight:600;font-size:12.5px}
+.stat .addq:disabled{opacity:.45}
+
+.toast{display:flex;align-items:center;gap:12px}
+.toast.act{pointer-events:auto}
+.toast button{color:#8FE0C8;font-weight:700;text-decoration:underline;padding:0}
+
+body.big{font-size:17px}
+body.big .row .nm{font-size:16.5px}
+body.big .row .meta{font-size:13px}
+body.big .stepper button{width:42px;height:42px;font-size:20px}
+body.big .stepper .q{height:42px;line-height:42px;min-width:40px;font-size:16px}
+body.big .add{padding:11px 18px;font-size:15px}
+body.big .searchwrap input{padding-block:16px;font-size:17px}
+body.big .chip{padding:8px 14px;font-size:14.5px}
+body.big nav button{font-size:15.5px}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brandrow">
+    <div class="brand" id="phName">نواقص الصيدلية</div>
+    <span class="status" id="dbStatus">…</span>
+    <div class="today" id="todayLbl"></div>
+  </div>
+  <nav>
+    <button data-v="log" aria-current="true">تسجيل النواقص</button>
+    <button data-v="cat">الأصناف</button>
+    <button data-v="arch">الأرشيف</button>
+    <button data-v="stats">إحصائيات</button>
+    <button data-v="set">الإعدادات</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ========== LOG ========== -->
+  <section class="view on" id="v-log">
+    <div id="cfgBanner"></div>
+    <div id="remind"></div>
+    <div class="searchwrap">
+      <span class="ico">⌕</span>
+      <input id="q" type="search" placeholder="ابحث عن صنف… وEnter يضيفه" autocomplete="off" autocorrect="off" spellcheck="false">
+      <div class="sbtns">
+        <button id="qClear" hidden aria-label="مسح البحث">✕</button>
+        <button id="micBtn" class="mic" hidden aria-label="بحث بالصوت" title="بحث بالصوت">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="chips" id="catChips"></div>
+    <div class="toolbar">
+      <select class="sel" id="supFilter"><option value="">كل الموردين</option></select>
+      <label class="chk"><input type="checkbox" id="onlyPicked"> المختار فقط</label>
+      <button class="btn sm ghost" id="repeatBtn" hidden>ضيف نواقص آخر كشف</button>
+      <span class="count" id="listCount"></span>
+    </div>
+    <div class="list" id="itemList"></div>
+  </section>
+
+  <!-- ========== CATALOG ========== -->
+  <section class="view" id="v-cat">
+    <div class="toolbar">
+      <button class="btn sm green" id="addItemBtn">+ صنف جديد</button>
+      <button class="btn sm ghost" id="manageSupBtn">الموردين</button>
+      <span class="count" id="catCount"></span>
+    </div>
+    <div class="searchwrap"><span class="ico">⌕</span><input id="q2" type="search" placeholder="ابحث في الأصناف…" autocomplete="off"></div>
+    <div class="list" id="catList"></div>
+  </section>
+
+  <!-- ========== ARCHIVE ========== -->
+  <section class="view" id="v-arch">
+    <div class="card filters" id="archFilters"></div>
+    <div class="sumline" id="archSum"></div>
+    <div id="archList"></div>
+  </section>
+
+  <!-- ========== STATS ========== -->
+  <section class="view" id="v-stats">
+    <div class="chips" id="statRange"></div>
+    <div id="statsBox"></div>
+  </section>
+
+  <!-- ========== SETTINGS ========== -->
+  <section class="view" id="v-set">
+    <div class="card">
+      <div class="field"><label>اسم الصيدلية (يظهر في الـ PDF والرسالة)</label>
+        <input id="setName" placeholder="صيدلية …"></div>
+      <div class="field"><label>رقم واتساب الدكتور (بكود الدولة، مثال 201001234567)</label>
+        <input id="setWa" inputmode="numeric" placeholder="201001234567"></div>
+      <div class="field"><label class="chk" style="color:var(--ink);font-size:14px"><input type="checkbox" id="setBig"> خط وأزرار أكبر (على الجهاز ده)</label></div>
+      <button class="btn sm green" id="saveSet">حفظ الإعدادات</button>
+    </div>
+    <h3 class="sec">الأرشفة التلقائية</h3>
+    <div class="card" style="font-size:13px;color:var(--muted);line-height:1.7">
+      كل يوم ليه كشف لوحده بيتحفظ مع كل تعديل، وبيتقفل تلقائي آخر اليوم. الأيام اللي مفيهاش نواقص بتتسجل برضه. أول ما تفتح التطبيق تاني يوم هيظهرلك تنبيه تراجع كشف امبارح وتبعته.
+    </div>
+    <h3 class="sec">نسخة احتياطية</h3>
+    <div class="card">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:10px">
+        نزّل ملف فيه كل الأصناف والسجلات، أو ارفع ملف قديم لاستعادته. <span id="bkInfo"></span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn sm ghost" id="expJson">تنزيل نسخة</button>
+        <button class="btn sm ghost" id="impJson">استعادة من ملف</button>
+        <input type="file" id="impFile" accept="application/json" hidden>
+      </div>
+    </div>
+    <h3 class="sec">الاتصال بقاعدة البيانات</h3>
+    <div class="card" style="font-size:13px;color:var(--muted);line-height:1.7" id="dbInfo"></div>
+  </section>
+</main>
+
+<!-- bottom bar -->
+<div class="bar">
+  <div class="sum"><b id="barTitle">لسه مفيش نواقص</b><span id="barSub">دوس على الصنف الناقص وحدد الكمية</span></div>
+  <button class="btn ghost sm" id="clearBtn" disabled>مسح</button>
+  <button class="btn" id="reviewBtn" disabled>مراجعة وإرسال</button>
+</div>
+
+<!-- sheet -->
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet">
+  <div class="head"><h2 id="sheetTitle">مراجعة النواقص</h2><button class="x" id="sheetX">✕</button></div>
+  <div class="body" id="sheetBody"></div>
+  <div class="foot" id="sheetFoot"></div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- print surface -->
+<div id="print"></div>
+
+<script type="module">
+/* ============================================================
+   1) FIREBASE  — حط بيانات مشروعك هنا
+   ============================================================ */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDBcJ0aVs9H_ki1nyPaZT4GJWhJABvYjFE",
+  authDomain: "pharmacy-shortage-7608d.firebaseapp.com",
+  projectId: "pharmacy-shortage-7608d",
+  storageBucket: "pharmacy-shortage-7608d.firebasestorage.app",
+  messagingSenderId: "170783517803",
+  appId: "1:170783517803:web:18154af4860674e5d2552e"
+};
+
+/* ============================================================ */
+const SEED = [{"n":"123 Extra Tab","c":"أقراص"},{"n":"123 Tab","c":"أقراص"},{"n":"Abimol Extra Tab","c":"أقراص"},{"n":"Abimol Supp","c":"لبوس"},{"n":"Abimol Tab","c":"أقراص","t":"العادي"},{"n":"Acetyl Cestein 600 Eff","c":"فوار"},{"n":"Actatarapid Vial","c":"فيال / حقن"},{"n":"Acyclovir 800 Tab","c":"أقراص"},{"n":"Adol extra Tab","c":"أقراص"},{"n":"Adolor Amp","c":"أمبولات"},{"n":"Aggrex Tab","c":"أقراص"},{"n":"Aggulax Sachets","c":"أكياس"},{"n":"Agulax Sachets","c":"أكياس"},{"n":"Albothyl V.g Supp","c":"لبوس"},{"n":"Algasal Cream","c":"كريم ومراهم"},{"n":"Algasonal Cream","c":"كريم ومراهم"},{"n":"Alkapress 5 Tab","c":"أقراص"},{"n":"Alkapress trio 10/320/25 Tab","c":"أقراص"},{"n":"All vent Syrup","c":"شراب"},{"n":"Allerban Tab","c":"أقراص"},{"n":"Allergex Cream","c":"كريم ومراهم"},{"n":"Alphacalcidol Drops","c":"نقط"},{"n":"Alphanova plus E.D","c":"قطرة عين وأذن"},{"n":"Alphintern Tab","c":"أقراص"},{"n":"Amaglust (30/4) (30/2) Tab","c":"أقراص"},{"n":"Amaglust 30/4 Tab","c":"أقراص"},{"n":"Amaryl 1 Tab","c":"أقراص"},{"n":"Amaryl 2/ 3 / 4 Tab","c":"أقراص","t":"ثلاثه من كل تركيز"},{"n":"Amaryl MR Tab","c":"أقراص"},{"n":"Ambezim G Tab","c":"أقراص"},{"n":"Amegran ADCO Tab","c":"أقراص"},{"n":"Amibazole Tab","c":"أقراص"},{"n":"Amocerebral plus Tab","c":"أقراص"},{"n":"Amrizole Tab","c":"أقراص"},{"n":"Anallerge Tab","c":"أقراص"},{"n":"Anselacox 90 Tab","c":"أقراص"},{"n":"Anticox Amp","c":"أمبولات"},{"n":"Anticox ll 15 Tab","c":"أقراص"},{"n":"Anticox ll Amp","c":"أمبولات"},{"n":"Antinal / Nanazoxid Susp","c":"شراب"},{"n":"Antinal Cap","c":"كبسولات"},{"n":"Antinal Susp","c":"شراب"},{"n":"Antodin 20 / 40 Tab","c":"أقراص"},{"n":"Antodin 20 Tab","c":"أقراص"},{"n":"Antodin 40 Tab","c":"أقراص"},{"n":"Antodin Amp","c":"أمبولات"},{"n":"Antodine 40 Tab","c":"أقراص"},{"n":"Apexidone 0.5 Tab","c":"أقراص"},{"n":"Apexidone Syrup","c":"شراب"},{"n":"Apidone Syrup","c":"شراب","t":"تبااااااارك"},{"n":"Aqua plus Syrup","c":"شراب"},{"n":"Arcoxia 90 Tab","c":"أقراص"},{"n":"Arthofast Tab","c":"أقراص"},{"n":"Asmakast 5 Tab","c":"أقراص"},{"n":"Aspirin protect 100 Tab","c":"أقراص"},{"n":"Aspocid Chewable Tab","c":"أقراص"},{"n":"Aspocid Tab","c":"أقراص"},{"n":"Aspricarlo 81 Tab","c":"أقراص"},{"n":"Aspricarlo Tab","c":"أقراص"},{"n":"Atacand 16 Tab","c":"أقراص"},{"n":"Ateroza 10/10 Tab","c":"أقراص"},{"n":"Ateroza 10/20 Tab","c":"أقراص","t":"علبتبييين"},{"n":"Ateroza 10/40 Tab","c":"أقراص"},{"n":"Ator 10 Tab","c":"أقراص"},{"n":"Ator 40 / 20 Tab","c":"أقراص","t":"نجيب واحده وواحده"},{"n":"Atorestate 10 Tab","c":"أقراص"},{"n":"Atrovent 0.5","c":"أخرى"},{"n":"Augmentin 1g Tab","c":"أقراص"},{"n":"Augram 642 Susp","c":"شراب"},{"n":"Averobios 642 Susp","c":"شراب"},{"n":"Averozolid 600 Tab","c":"أقراص"},{"n":"Avil Amp","c":"أمبولات"},{"n":"Azaderm Cream","c":"كريم ومراهم"},{"n":"B.Com Amp","c":"أمبولات"},{"n":"Babetone sugar free Syrup","c":"شراب"},{"n":"Baby relife 25 Supp","c":"لبوس"},{"n":"Be freh M.W","c":"غسول ولوسيون","t":"الأحمر والأخضر"},{"n":"Be fresh M.W","c":"غسول ولوسيون","t":"الأزرق"},{"n":"Becozyme Amp","c":"أمبولات"},{"n":"Betacerek 24 Tab","c":"أقراص"},{"n":"Betaderm 15g Cream","c":"كريم ومراهم"},{"n":"Betaderm 15g/30g Cream","c":"كريم ومراهم"},{"n":"Betaderm 30g Cream","c":"كريم ومراهم"},{"n":"Betadin","c":"أخرى","t":"مطهر"},{"n":"Betafos Amp","c":"أمبولات"},{"n":"Betolvex Amp","c":"أمبولات"},{"n":"Bevatracin Spray","c":"بخاخ"},{"n":"Bi alcofan Tab","c":"أقراص"},{"n":"Bi profenid Tab","c":"أقراص"},{"n":"Biovit Amp","c":"أمبولات"},{"n":"Biovit B12 Amp","c":"أمبولات"},{"n":"Bisocard 2.5 Tab","c":"أقراص"},{"n":"Bisocard 5 Tab","c":"أقراص"},{"n":"Bisolvon Tab","c":"أقراص"},{"n":"Bistol 5 Tab","c":"أقراص"},{"n":"Bistol plus 5/12.5 Tab","c":"أقراص"},{"n":"Bivatracin Spray","c":"بخاخ"},{"n":"Blephadexoline E.D","c":"قطرة عين وأذن"},{"n":"Blokatens 10/160 Tab","c":"أقراص"},{"n":"Blokatens 5/160 Tab","c":"أقراص"},{"n":"Blokatens HCT 5/160/12.5, Tab","c":"أقراص"},{"n":"Blokium Diu Tab","c":"أقراص"},{"n":"Bobai Cream SunScrean","c":"كريم ومراهم"},{"n":"Bobai Gel Sun screen","c":"جيل"},{"n":"Bobai Sun screen Cream","c":"كريم ومراهم"},{"n":"Bobai Sunscreen Cream / Gel","c":"كريم ومراهم","t":"واحده وواحده"},{"n":"Bon care 1mg Tab","c":"أقراص"},{"n":"Brestaflam Tab","c":"أقراص"},{"n":"Brett V.Douch","c":"غسول ولوسيون"},{"n":"Bronchicum Syrup","c":"شراب"},{"n":"Bronchopro Syrup","c":"شراب"},{"n":"Brufen 400 Tab","c":"أقراص"},{"n":"Brufen 600 Tab","c":"أقراص"},{"n":"Brufen Eff","c":"فوار"},{"n":"Brufen Syrup","c":"شراب"},{"n":"C retard Cap","c":"كبسولات"},{"n":"Cal mag Tab","c":"أقراص","t":"نجيب واحده بسسس"},{"n":"Cal mage Tab","c":"أقراص"},{"n":"Calcetron Cap","c":"كبسولات"},{"n":"Calcium D3.f Tab","c":"أقراص"},{"n":"Caldin C Tab","c":"أقراص"},{"n":"Cally IBM Syrup","c":"شراب"},{"n":"Candlkan 8 Tab","c":"أقراص"},{"n":"Candlkan plus 16/12.5 Tab","c":"أقراص"},{"n":"Canthistop 80 Tab","c":"أقراص","t":"عايزين واحده ضروري"},{"n":"Capoten Tab","c":"أقراص"},{"n":"Capotril Tab","c":"أقراص"},{"n":"Carbamide Cream","c":"كريم ومراهم"},{"n":"Carbimazole Tab","c":"أقراص"},{"n":"Carvid 6.25 Tab","c":"أقراص"},{"n":"Catafast 50 Eff","c":"فوار"},{"n":"Cataflam Tab","c":"أقراص"},{"n":"Cefamol Eff","c":"فوار"},{"n":"Cefaxone 1g Vial","c":"فيال / حقن"},{"n":"Cefetriaxone 1g Vial","c":"فيال / حقن"},{"n":"Ceporex 1g Tab","c":"أقراص"},{"n":"Cerazette Tab","c":"أقراص"},{"n":"Cerelac","c":"ألبان وأغذية أطفال","t":"تفاح وقمح بدون لبن"},{"n":"Cervitam Cap","c":"كبسولات"},{"n":"Cetal cold&flu Tab","c":"أقراص"},{"n":"Cetal Drops","c":"نقط"},{"n":"Cetal Supp","c":"لبوس"},{"n":"Cetal Syrup","c":"شراب"},{"n":"Cetal Tab","c":"أقراص"},{"n":"Cholerose 10 Tab","c":"أقراص"},{"n":"Cholerose plus 10/40 Tab","c":"أقراص"},{"n":"Cholerose plus 20/10 Tab","c":"أقراص"},{"n":"Chromax Cap","c":"كبسولات"},{"n":"Chrometron Cap","c":"كبسولات"},{"n":"Cidamex Tab","c":"أقراص"},{"n":"Cidophage 1g Tab","c":"أقراص"},{"n":"Cidophage 850 Tab","c":"أقراص"},{"n":"Cinarizin 25 Tab","c":"أقراص"},{"n":"Cinarizine Tab","c":"أقراص"},{"n":"Ciprofar 750 Tab","c":"أقراص"},{"n":"Clamyl Losion","c":"غسول ولوسيون"},{"n":"Claritine Tab","c":"أقراص"},{"n":"Clatex 75 Tab","c":"أقراص"},{"n":"Clavimox 1g Tab","c":"أقراص"},{"n":"Clopex 75 Tab","c":"أقراص"},{"n":"Clopex Tab","c":"أقراص"},{"n":"Co avazir E.O","c":"كريم ومراهم"},{"n":"Co targ 160/12.5 Tab","c":"أقراص"},{"n":"Co targ 80/12.5 Tab","c":"أقراص"},{"n":"Cobal F Tab","c":"أقراص"},{"n":"Codelar Syrup","c":"شراب"},{"n":"Cogentol 2 Tab","c":"أقراص"},{"n":"Cold control Tab","c":"أقراص"},{"n":"Cold free Tab","c":"أقراص"},{"n":"Colona Tab","c":"أقراص"},{"n":"Coloverin A Tab","c":"أقراص"},{"n":"Coloverin D Tab","c":"أقراص"},{"n":"Concor 10/10plusT","c":"أخرى","t":"اتنين واتنين"},{"n":"Concor 10plus Tab","c":"أقراص"},{"n":"Concor 2.5 Tab","c":"أقراص"},{"n":"Concor 5 Tab","c":"أقراص"},{"n":"Concor 5plus /5","c":"أخرى","t":"العادي T 6"},{"n":"Concor 5plus Tab","c":"أقراص","t":"نجيب خمس علب"},{"n":"Congestal Syrup","c":"شراب"},{"n":"Congestal Tab","c":"أقراص"},{"n":"Contagever Syrup","c":"شراب"},{"n":"Contraplan Tab","c":"أقراص"},{"n":"Controloc 40 Tab","c":"أقراص"},{"n":"Convazotec 160/12.5 Tab","c":"أقراص"},{"n":"Conventin 400 / 100 Cap","c":"كبسولات"},{"n":"Conventin 400 Cap","c":"كبسولات"},{"n":"Conventin 800 Cap","c":"كبسولات"},{"n":"Corasor Drops","c":"نقط"},{"n":"Cordaron Tab","c":"أقراص"},{"n":"Cornitears E.D","c":"قطرة عين وأذن"},{"n":"Coughcid Children Supp","c":"لبوس","t":"اطفال مش رضع"},{"n":"Curam 1g Tab","c":"أقراص"},{"n":"Curam 457 Susp","c":"شراب"},{"n":"Curam 642 Susp","c":"شراب"},{"n":"Curisafe 1g Tab","c":"أقراص"},{"n":"Cyclopreginova Tab","c":"أقراص"},{"n":"Cycloprogenova Tab","c":"أقراص"},{"n":"Cympatex 60 Tab","c":"أقراص"},{"n":"Cystone Tab","c":"أقراص"},{"n":"D dep Drops","c":"نقط"},{"n":"Dafrex Tab","c":"أقراص"},{"n":"Daktarin Cream","c":"كريم ومراهم"},{"n":"Dalacin C Tab","c":"أقراص"},{"n":"Danset 4 Amp","c":"أمبولات"},{"n":"Dantrelax Cap","c":"كبسولات"},{"n":"Dapaveldactin plus 50/850 Tab","c":"أقراص"},{"n":"Dapsocyrl 5% 50mg/g","c":"أخرى"},{"n":"Davalindi 10000 Tab","c":"أقراص"},{"n":"Davalindi 5000 Tab","c":"أقراص"},{"n":"Decancit SR Tab","c":"أقراص"},{"n":"Decansit SR Tab","c":"أقراص"},{"n":"Declophin 100 Supp","c":"لبوس"},{"n":"Declophin Amp","c":"أمبولات"},{"n":"Decongestyl Supp","c":"لبوس"},{"n":"Delatrol 6.25 Tab","c":"أقراص"},{"n":"Delatrol E D","c":"أخرى"},{"n":"Deltarhino Drops","c":"نقط"},{"n":"Deltavit B12 Tab","c":"أقراص"},{"n":"Depakin","c":"أخرى","t":"أكياس"},{"n":"Depakin 500 Tab","c":"أقراص"},{"n":"Depovit Amp","c":"أمبولات"},{"n":"Dermatin Cream","c":"كريم ومراهم"},{"n":"Dermovate Cream","c":"كريم ومراهم"},{"n":"Dermovate Ointment","c":"كريم ومراهم"},{"n":"Devarol Amp","c":"أمبولات"},{"n":"Dexaflox E.D","c":"قطرة عين وأذن"},{"n":"Dexaglob Amp","c":"أمبولات"},{"n":"Dexamethasone Amp","c":"أمبولات"},{"n":"Dexatobrin E.D","c":"قطرة عين وأذن"},{"n":"Dexatonrin E.D","c":"قطرة عين وأذن"},{"n":"Dexatoprine E.D","c":"قطرة عين وأذن"},{"n":"Dexatrol E.D","c":"قطرة عين وأذن"},{"n":"Dexazone Tab","c":"أقراص"},{"n":"DG wash M.W","c":"غسول ولوسيون","t":"قرنفل"},{"n":"Diabenor 2 Tab","c":"أقراص"},{"n":"Diabenor 3 Tab","c":"أقراص"},{"n":"Diabetonorm Tab","c":"أقراص"},{"n":"Diacerin Cap","c":"كبسولات"},{"n":"Diacurimab 10 Tab","c":"أقراص"},{"n":"Diamicron 30 Tab","c":"أقراص"},{"n":"Diamicron 60 Tab","c":"أقراص"},{"n":"Diamonrecta 5 Tab","c":"أقراص"},{"n":"Diax Syrup","c":"شراب"},{"n":"Dibavally plus 50/1000 Tab","c":"أقراص"},{"n":"Diclac 150 Tab","c":"أقراص"},{"n":"Diclac 75 Tab","c":"أقراص"},{"n":"Diflucan 150 Cap","c":"كبسولات"},{"n":"Diflustero E.D","c":"قطرة عين وأذن"},{"n":"Digest eze Tab","c":"أقراص"},{"n":"Digestin Tab","c":"أقراص"},{"n":"Digestine Tab","c":"أقراص"},{"n":"Digestozym Tab","c":"أقراص"},{"n":"Dimra Tab","c":"أقراص"},{"n":"Disa Tab","c":"أقراص"},{"n":"Divido Cap","c":"كبسولات"},{"n":"Diviton D Drops","c":"نقط"},{"n":"Dolcyl 3 Tab","c":"أقراص","t":"علبتين"},{"n":"Doliprane 1g Tab","c":"أقراص","t":"الخمس أقراااااص"},{"n":"Doliprane Tab","c":"أقراص"},{"n":"Dolphin 25 Supp","c":"لبوس"},{"n":"Dolphin Gel","c":"جيل"},{"n":"Dorofen Cap","c":"كبسولات"},{"n":"Dostinex Tab","c":"أقراص"},{"n":"Downoprazole 20 Eff","c":"فوار"},{"n":"Downoprazole 40 Eff","c":"فوار"},{"n":"Downoprazole 40/1100 Tab","c":"أقراص"},{"n":"Downoprazole 40/20 Eff","c":"فوار"},{"n":"Doxirazole 60 Cap","c":"كبسولات"},{"n":"Doxycost 200 Tab","c":"أقراص"},{"n":"Duphlac Syrup","c":"شراب"},{"n":"Duspatalin retard Tab","c":"أقراص"},{"n":"Duspatalin Tab","c":"أقراص"},{"n":"Ectomethrin Losion","c":"غسول ولوسيون"},{"n":"Elbavit with iron Syrup","c":"شراب"},{"n":"Elica M Cream","c":"كريم ومراهم"},{"n":"Embacoza trio 10/5/1000 Tab","c":"أقراص"},{"n":"Emox 250 Susp","c":"شراب"},{"n":"Emox 500 Cap","c":"كبسولات"},{"n":"Emox clav 642 Susp","c":"شراب"},{"n":"Emoxclav 457 Susp","c":"شراب"},{"n":"Empacoza 25 Tab","c":"أقراص"},{"n":"Empacoza trio XR 10/5/1000 Tab","c":"أقراص"},{"n":"Enimax","c":"أخرى","t":"حقنة شرجيه"},{"n":"Epicopred 5 Tab","c":"أقراص"},{"n":"Epimage Eff","c":"فوار"},{"n":"Epirazole 20 Tab","c":"أقراص"},{"n":"Epirazole 40 Tab","c":"أقراص"},{"n":"Erastapex 20 Tab","c":"أقراص"},{"n":"Erastapex 40 Tab","c":"أقراص"},{"n":"Erastapex co 20/5 Tab","c":"أقراص"},{"n":"Erastapex co 40/10 Tab","c":"أقراص"},{"n":"Erastapex co 40/5 Tab","c":"أقراص"},{"n":"Erastapex plus 20/12.5 Tab","c":"أقراص"},{"n":"Erastapex plus 40/12.5 Tab","c":"أقراص"},{"n":"Erastapex Trio 20/5/12.5, Tab","c":"أقراص"},{"n":"Erastapex trio 40/10/25 Tab","c":"أقراص"},{"n":"ErastPex trio 40/10/25 Tab","c":"أقراص"},{"n":"Estikan 10 Tab","c":"أقراص"},{"n":"Estikan 20 Tab","c":"أقراص"},{"n":"Eucarbon Tab","c":"أقراص","t":"تباااااارك"},{"n":"Euthyrox 75 Tab","c":"أقراص","t":"مهمم"},{"n":"Evastin Tab","c":"أقراص"},{"n":"Examide 10 Tab","c":"أقراص"},{"n":"Examide Tab","c":"أقراص"},{"n":"Exforg HCT 5/160/12.5 Tab","c":"أقراص"},{"n":"Exforge 10/160 Tab","c":"أقراص"},{"n":"Exforge HCT 10/160/25 Tab","c":"أقراص"},{"n":"Ezacard 75 Tab","c":"أقراص"},{"n":"Ezapril co Tab","c":"أقراص"},{"n":"Faglozino 10 Tab","c":"أقراص"},{"n":"FAKTU Cream","c":"كريم ومراهم"},{"n":"Famotak 20/40 Tab","c":"أقراص"},{"n":"Fastum 60g Gel","c":"جيل"},{"n":"Fastum Gel 60g Gel","c":"جيل"},{"n":"Fawar fruit Eff","c":"فوار"},{"n":"Feldin 20 Tab","c":"أقراص","t":"أقراص فوار"},{"n":"Feldin Amp","c":"أمبولات"},{"n":"Femogesal /Lactevenor /Genera/Triosept Tab","c":"أقراص","t":"أربعه من كل واحد"},{"n":"Feroglobin Cap","c":"كبسولات"},{"n":"Feroglobin Syrup","c":"شراب"},{"n":"Ferrdional Cap","c":"كبسولات"},{"n":"Ferrotron Cap","c":"كبسولات"},{"n":"Flagyl Syrup","c":"شراب"},{"n":"Flagyl Tab","c":"أقراص"},{"n":"Flagyl Tab/Syrup","c":"أقراص"},{"n":"Flatidyl Tab","c":"أقراص"},{"n":"Flector 50 Cap","c":"كبسولات"},{"n":"Flexonase Spray","c":"بخاخ"},{"n":"Florest Tab","c":"أقراص"},{"n":"Floxamo 1g Tab","c":"أقراص"},{"n":"Fluca E.D","c":"قطرة عين وأذن"},{"n":"Flumox 500 Cap","c":"كبسولات"},{"n":"Folic acid Tab","c":"أقراص","t":"تبااااارك"},{"n":"Folic acide Tab","c":"أقراص"},{"n":"Folotak 75 Tab","c":"أقراص"},{"n":"Forflozin 10 Tab","c":"أقراص"},{"n":"Forvent Syrup","c":"شراب"},{"n":"Forxiga Tab","c":"أقراص"},{"n":"Fucicort 15g Cream","c":"كريم ومراهم"},{"n":"Fuciderm 15g Cream","c":"كريم ومراهم"},{"n":"Fucidin 15g / 20g / 30g Cream","c":"كريم ومراهم"},{"n":"Fucidin 15g Cream","c":"كريم ومراهم"},{"n":"Fucidin 20g Cream","c":"كريم ومراهم"},{"n":"Fulprazal 40 Tab","c":"أقراص"},{"n":"Fulprazole 40 Cap","c":"كبسولات"},{"n":"Fungican 150 Cap","c":"كبسولات"},{"n":"Fungicane 150 Cap","c":"كبسولات"},{"n":"Fungicare Soap","c":"غسول ولوسيون"},{"n":"Furazole 250/200 Tab","c":"أقراص"},{"n":"Fusi 15g Cream","c":"كريم ومراهم"},{"n":"Fusi 15g Ointment","c":"كريم ومراهم"},{"n":"Fusi zon 15g Cream","c":"كريم ومراهم"},{"n":"Fusicort 15g Cream","c":"كريم ومراهم"},{"n":"G.C.Mol Eff","c":"فوار"},{"n":"Gabimash 800 Tab","c":"أقراص"},{"n":"Galvus 50 Tab","c":"أقراص"},{"n":"Galvus met 50/1000 Tab","c":"أقراص"},{"n":"Galvus met 50/850 Tab","c":"أقراص"},{"n":"Galvuset 50/1000 Tab","c":"أقراص"},{"n":"Ganaton Tab","c":"أقراص"},{"n":"Ganatone Tab","c":"أقراص"},{"n":"Gaptin 300 Cap","c":"كبسولات"},{"n":"Gaptine 100 Cap","c":"كبسولات"},{"n":"Gaptine 300 Cap","c":"كبسولات"},{"n":"Garamycin Cream","c":"كريم ومراهم"},{"n":"Garamycin Ointment","c":"كريم ومراهم"},{"n":"Garamyvin Ointment","c":"كريم ومراهم"},{"n":"Gast reg 200 Tab","c":"أقراص"},{"n":"Geli nose Gel","c":"جيل"},{"n":"Genera / Femogesal / Lactevenor Tab","c":"أقراص"},{"n":"Genera /Microgenest Tab","c":"أقراص"},{"n":"Genera Tab","c":"أقراص"},{"n":"Gestranil / Yasmin Tab","c":"أقراص"},{"n":"Gestranil Tab","c":"أقراص"},{"n":"Ginger Tab","c":"أقراص"},{"n":"Glimet 2.5 Tab","c":"أقراص"},{"n":"Glimet forte 5/800 Cap","c":"كبسولات"},{"n":"Gliptus plus 50/1000 Tab","c":"أقراص"},{"n":"Gliptus plus 50/500 Tab","c":"أقراص"},{"n":"Glucophage 1000 Tab","c":"أقراص"},{"n":"Glucophage 500 Tab","c":"أقراص"},{"n":"Glybofen 5/1000 Tab","c":"أقراص"},{"n":"Glycerin Adults Supp","c":"لبوس"},{"n":"Glyco-clear Nuveracosmetics Toner","c":"غسول ولوسيون"},{"n":"Glycodal Tab","c":"أقراص","t":"نجيب واحده بسسس"},{"n":"Gold V.douch","c":"أخرى"},{"n":"Gralipintin 300 XR Tab","c":"أقراص"},{"n":"Gralipintin XR 300 Tab","c":"أقراص"},{"n":"Grouth formula","c":"ألبان وأغذية أطفال","t":"حوامل شيكولاته"},{"n":"Grouth formula WG","c":"ألبان وأغذية أطفال","t":"شيكولاته"},{"n":"Gynizole Supp","c":"لبوس"},{"n":"Gynizole V.supp","c":"أخرى"},{"n":"Gynoconazole 8% V.Supp/ V.Cream","c":"كريم ومراهم"},{"n":"Gynoprogest Tab","c":"أقراص"},{"n":"Haemostop Amp","c":"أمبولات"},{"n":"Hair plus back 5%","c":"أخرى","t":"الأخضر"},{"n":"Hemoclare Cream","c":"كريم ومراهم"},{"n":"Hemoclare Ointment","c":"كريم ومراهم"},{"n":"Hepta panthenol Cream","c":"كريم ومراهم"},{"n":"Hero baby","c":"ألبان وأغذية أطفال","t":"وجبات"},{"n":"Hero baby 1 Nutradefence","c":"ألبان وأغذية أطفال"},{"n":"Hero baby 3Nutradefence","c":"ألبان وأغذية أطفال","t":"تبااااارك"},{"n":"Hestazin Syrup","c":"شراب"},{"n":"Hexitol M.W","c":"غسول ولوسيون"},{"n":"Hi biotic 1g Tab","c":"أقراص"},{"n":"Hi biotic 228 Susp","c":"شراب"},{"n":"Hi biotic 625 Tab","c":"أقراص"},{"n":"Hi biotic 642 Susp","c":"شراب"},{"n":"Histazin Syrup","c":"شراب"},{"n":"Histazin Tab","c":"أقراص"},{"n":"Immunephar Cap","c":"كبسولات"},{"n":"Incont L.A Tab","c":"أقراص"},{"n":"Inderal 10 Tab","c":"أقراص"},{"n":"Indometacin Supp","c":"لبوس"},{"n":"Indomethacin Supp","c":"لبوس"},{"n":"Injectmol","c":"أخرى","t":"محلول"},{"n":"Irospect Tab","c":"أقراص"},{"n":"Isis","c":"أخرى","t":"نعناع"},{"n":"Itopride 50 Tab","c":"أقراص"},{"n":"Ivypront Syrup","c":"شراب"},{"n":"Ivyrospan Syrup","c":"شراب"},{"n":"Juspirin 81 Tab","c":"أقراص"},{"n":"Kabron Amp","c":"أمبولات"},{"n":"Kapron Tab","c":"أقراص"},{"n":"Kellagon Cap","c":"كبسولات"},{"n":"Kenacomp Cream","c":"كريم ومراهم"},{"n":"Kerovit Cap","c":"كبسولات"},{"n":"Ketobral plus Shampo","c":"غسول ولوسيون"},{"n":"Ketofan Cap","c":"كبسولات"},{"n":"Ketolac Amp","c":"أمبولات"},{"n":"Ketolac Tab","c":"أقراص"},{"n":"Ketolgin 50 Tab","c":"أقراص"},{"n":"Ketoral Shampoo","c":"غسول ولوسيون"},{"n":"Ketotal Shampo","c":"غسول ولوسيون"},{"n":"Kokast 4 Tab","c":"أقراص"},{"n":"Laciol pi Tab","c":"أقراص"},{"n":"Lacritears E.D","c":"قطرة عين وأذن"},{"n":"Lactevenor Tab","c":"أقراص"},{"n":"Lamefen Cream","c":"كريم ومراهم"},{"n":"Lantus Pen","c":"فيال / حقن"},{"n":"Lanzofutal 30mg Tab","c":"أقراص"},{"n":"Lary pro Tab","c":"أقراص"},{"n":"Lasilactone 50 Tab","c":"أقراص"},{"n":"Lasix 40 Tab","c":"أقراص"},{"n":"Laxiol pi Tab","c":"أقراص"},{"n":"Levcet Syrup","c":"شراب"},{"n":"Levcet Tab","c":"أقراص"},{"n":"Levohistam Drops","c":"نقط"},{"n":"Levohistam Syrup","c":"شراب"},{"n":"Levohistam Tab","c":"أقراص"},{"n":"Librax Tab","c":"أقراص"},{"n":"Licid Losion","c":"غسول ولوسيون"},{"n":"Lidocain Spray","c":"بخاخ"},{"n":"Lili V.douch","c":"أخرى"},{"n":"Lili V.fouch","c":"غسول ولوسيون"},{"n":"Limitless Allzyme Tab","c":"أقراص"},{"n":"Limitless B Complex ODF","c":"أخرى"},{"n":"Limitless fortalse Syrup","c":"شراب"},{"n":"Limitless lipoferrex Tab","c":"أقراص"},{"n":"Limitless Magnesium Tab","c":"أقراص"},{"n":"Limitless man max Tab","c":"أقراص"},{"n":"Limitless milga max Tab","c":"أقراص"},{"n":"Limitless omega fish oil Tab","c":"أقراص"},{"n":"Limitless omega vit.","c":"أخرى"},{"n":"Limitless woman max Tab","c":"أقراص"},{"n":"Limitless women max Tab","c":"أقراص"},{"n":"Linagliflozin 5/25 Tab","c":"أقراص"},{"n":"Lipanthyl 300 Cap","c":"كبسولات"},{"n":"Lipanthyl supra Tab","c":"أقراص"},{"n":"Livabion Amp","c":"أمبولات"},{"n":"Livablion Amp","c":"أمبولات"},{"n":"Lornoxicam 8 Vial","c":"فيال / حقن"},{"n":"Lustral 50 Tab","c":"أقراص"},{"n":"Maalox Sachets","c":"أكياس"},{"n":"Magnatop Tab","c":"أقراص"},{"n":"Magnesium plus Tab","c":"أقراص"},{"n":"Marevan 5 Tab","c":"أقراص","t":"علبتين"},{"n":"Mavilor 5 Tab","c":"أقراص"},{"n":"Maxilase Syrup","c":"شراب"},{"n":"Mebaco","c":"أخرى","t":"خميرة Tab 3"},{"n":"Mebo 15g Ointment","c":"كريم ومراهم"},{"n":"Mebo 30g Ointment","c":"كريم ومراهم"},{"n":"Megafen Syrup","c":"شراب"},{"n":"Megalase Tab","c":"أقراص"},{"n":"Megamox 1g Tab","c":"أقراص"},{"n":"Melanthenol Cream","c":"كريم ومراهم"},{"n":"Melanthenol Gel","c":"جيل"},{"n":"Melga advance Tab","c":"أقراص"},{"n":"Melga Tab","c":"أقراص"},{"n":"Meloquin Cream","c":"كريم ومراهم"},{"n":"Metapsin Cap","c":"كبسولات"},{"n":"Methyl techno","c":"أخرى"},{"n":"Miconaz Cream","c":"كريم ومراهم"},{"n":"Miconaz Gel","c":"جيل"},{"n":"Microgenest Tab","c":"أقراص"},{"n":"Mirtimash Tab","c":"أقراص"},{"n":"Mixderm 15g Cream","c":"كريم ومراهم"},{"n":"Mixderm 15g/30g Cream","c":"كريم ومراهم","t":"واحده وواحده"},{"n":"Mixderm 30g Cream","c":"كريم ومراهم"},{"n":"Mixtard Penfil","c":"فيال / حقن"},{"n":"Mixtard Vial","c":"فيال / حقن"},{"n":"Mobitil Amp","c":"أمبولات"},{"n":"Modazar Tab","c":"أقراص"},{"n":"Momenta Cream","c":"كريم ومراهم"},{"n":"Monomak Depot Tab","c":"أقراص"},{"n":"Moov massage Cream","c":"كريم ومراهم"},{"n":"Mosapride 5 Tab","c":"أقراص"},{"n":"Mosedine Tab","c":"أقراص"},{"n":"Motellium Tab","c":"أقراص"},{"n":"Motinorm Syrup","c":"شراب"},{"n":"Movixir Tab","c":"أقراص"},{"n":"Moxiflox E.D","c":"قطرة عين وأذن"},{"n":"Muco SR Cap","c":"كبسولات"},{"n":"Muco Syrup","c":"شراب"},{"n":"Mucophyllin Syrup","c":"شراب"},{"n":"Mucosol Ped. Syrup","c":"شراب"},{"n":"Mucosta Tab","c":"أقراص"},{"n":"Multi relax 10 Tab","c":"أقراص"},{"n":"Mupirax Cream","c":"كريم ومراهم"},{"n":"My sweet baby Syrup","c":"شراب"},{"n":"Myofen Cap","c":"كبسولات"},{"n":"Nail Losion","c":"غسول ولوسيون"},{"n":"Nanazoxide Susp","c":"شراب"},{"n":"Nanazoxide Tab","c":"أقراص"},{"n":"Napizole 40 Tab","c":"أقراص"},{"n":"Nasacort Spray","c":"بخاخ"},{"n":"Nasonex Spray","c":"بخاخ"},{"n":"Neo carbon Cap","c":"كبسولات"},{"n":"Nestogin","c":"ألبان وأغذية أطفال","t":"نجيب علبتيييين"},{"n":"Neuroglobantin 300 Cap","c":"كبسولات"},{"n":"Neurovit Amp","c":"أمبولات"},{"n":"Neurovit Tab","c":"أقراص"},{"n":"Nevexal Forte E.D","c":"قطرة عين وأذن"},{"n":"Nevilob 2.5 Tab","c":"أقراص"},{"n":"Nevilob plus 5/12.5 Tab","c":"أقراص"},{"n":"Nevixal forte E.D","c":"قطرة عين وأذن"},{"n":"Newclav 642 Susp","c":"شراب"},{"n":"Nexicure 40 Tab","c":"أقراص"},{"n":"Nexium 40 Tab","c":"أقراص"},{"n":"Night calm 1 Tab","c":"أقراص"},{"n":"Night calm 3 Tab","c":"أقراص"},{"n":"Nitromak 2.5 Cap","c":"كبسولات"},{"n":"Nitromak retard 2.5 Cap","c":"كبسولات"},{"n":"Nizapex Shampo","c":"غسول ولوسيون"},{"n":"No flu Tab","c":"أقراص"},{"n":"No uric 100 Tab","c":"أقراص"},{"n":"No uric 300 Tab","c":"أقراص"},{"n":"Nostamine E.D","c":"قطرة عين وأذن"},{"n":"Nostamomine E.D","c":"قطرة عين وأذن"},{"n":"Notussil Syrup","c":"شراب"},{"n":"Nova C N Tab","c":"أقراص"},{"n":"Novalgin Oblong Tab","c":"أقراص"},{"n":"Novenorm 1mg Tab","c":"أقراص"},{"n":"Obonov Cap","c":"كبسولات"},{"n":"Octovent plus Syrup","c":"شراب"},{"n":"Octozinc Cap","c":"كبسولات"},{"n":"Ocuguard Cap","c":"كبسولات"},{"n":"Omega cough Syrup","c":"شراب"},{"n":"Omega3 Cap","c":"كبسولات"},{"n":"Omega3 Syrup","c":"شراب"},{"n":"Omez 20 / 40 Cap","c":"كبسولات"},{"n":"Omez 20 Cap","c":"كبسولات"},{"n":"Omnevora Amp","c":"أمبولات"},{"n":"Ondalenz","c":"أخرى"},{"n":"One alpha 0.5 Tab","c":"أقراص"},{"n":"One Alpha Drops 10ml","c":"نقط"},{"n":"Oplex N Supp","c":"لبوس"},{"n":"Oplex Syrup","c":"شراب"},{"n":"Optaminess Tab","c":"أقراص"},{"n":"Optidex E.D","c":"قطرة عين وأذن"},{"n":"Oracure /Miconaz Gel","c":"جيل"},{"n":"Oracure Gel","c":"جيل"},{"n":"Orchadecoline E.D","c":"قطرة عين وأذن"},{"n":"Orchazid E.D","c":"قطرة عين وأذن"},{"n":"Orly 120 Tab","c":"أقراص"},{"n":"Orovex M.W","c":"غسول ولوسيون","t":"الأخضر"},{"n":"Ossofortin D3 5000 Tab","c":"أقراص"},{"n":"Osteocare Syrup","c":"شراب"},{"n":"Osteocare Tab","c":"أقراص","t":"تبااأاارك"},{"n":"Otal Ears.D","c":"قطرة عين وأذن"},{"n":"Otocalm Drops","c":"نقط"},{"n":"Otrivin Adults","c":"أخرى"},{"n":"Otrivin baby saline","c":"أخرى"},{"n":"Otrivin Children","c":"أخرى"},{"n":"Oxilozyme Tab","c":"أقراص"},{"n":"Oxymet adults Drops","c":"نقط"},{"n":"Oxymet Drops","c":"نقط"},{"n":"Oxyprogest Amp","c":"أمبولات"},{"n":"Oxyprogest Vial","c":"فيال / حقن"},{"n":"Panadol acute head cold Tab","c":"أقراص"},{"n":"Panadol Advance Tab","c":"أقراص"},{"n":"Panadol cold&flu Tab","c":"أقراص"},{"n":"Panadol Extra Tab","c":"أقراص"},{"n":"Panasol advance Tab","c":"أقراص"},{"n":"Pantazole 40 Tab","c":"أقراص"},{"n":"Panthenol 15g Cream","c":"كريم ومراهم"},{"n":"Panthenol 20g/50g Cream","c":"كريم ومراهم","t":"اتنين واتنين"},{"n":"Panthenol 50g Cream","c":"كريم ومراهم","t":"تباااااارك"},{"n":"Pantoloc 40 Tab","c":"أقراص"},{"n":"Paracetamol Tab","c":"أقراص","t":"العلبة اللي  ب24ج"},{"n":"Paramol Tab","c":"أقراص"},{"n":"Pectol","c":"أخرى","t":"برتقال"},{"n":"Pectol Orange","c":"أخرى"},{"n":"Pedical Syrup","c":"شراب"},{"n":"Pentamix Syrup","c":"شراب"},{"n":"Pepzole 20 Cap","c":"كبسولات"},{"n":"Pepzole 40 Cap","c":"كبسولات"},{"n":"Perfectil Tab","c":"أقراص"},{"n":"Pharsert Vag.Ovule","c":"لبوس"},{"n":"Phenadone Syrup","c":"شراب"},{"n":"Picolax","c":"أخرى"},{"n":"Plavix 75 Tab","c":"أقراص"},{"n":"Plavix Tab","c":"أقراص"},{"n":"Poly fresh E.D","c":"قطرة عين وأذن"},{"n":"Power B Complex Tab","c":"أقراص"},{"n":"Power B Complex Tab/Amp","c":"أقراص"},{"n":"Power caps Cap","c":"كبسولات"},{"n":"Power cold&flu Tab","c":"أقراص"},{"n":"Pravotin 14Sachets","c":"أكياس","t":"نجيب ثلاث علب من تباااااااارك"},{"n":"Preg chocolate","c":"ألبان وأغذية أطفال"},{"n":"Pregnacare original Tab","c":"أقراص"},{"n":"Pridocain 15g /30g Cream","c":"كريم ومراهم","t":"واحده وواحده"},{"n":"Pridocain 15g Cream","c":"كريم ومراهم"},{"n":"Pridocain 30g Cream","c":"كريم ومراهم"},{"n":"Prisolin E.d","c":"قطرة عين وأذن"},{"n":"Procasoft 2 Tab","c":"أقراص"},{"n":"Procoralan 7.5 Tab","c":"أقراص"},{"n":"Progest 100 Cap","c":"كبسولات"},{"n":"Prontogest Amp","c":"أمبولات"},{"n":"Prontogest Supp","c":"لبوس"},{"n":"Propamethone Cream","c":"كريم ومراهم"},{"n":"Prosoline E.D","c":"قطرة عين وأذن"},{"n":"Prostanorm Cap","c":"كبسولات"},{"n":"Proximol Eff","c":"فوار"},{"n":"Psycodal 1 / 4 Tab","c":"أقراص"},{"n":"Purgaton Tab","c":"أقراص"},{"n":"Quinostarmax 500 Tab","c":"أقراص"},{"n":"Quinostarmax 750 Tab","c":"أقراص"},{"n":"Quitapex 25 Tab","c":"أقراص"},{"n":"Ramixol 0.25 Tab","c":"أقراص"},{"n":"Randil 10 Tab","c":"أقراص"},{"n":"Rani / Fawar fruit Eff","c":"فوار"},{"n":"Relaxone Cap","c":"كبسولات"},{"n":"Reparil Gel","c":"جيل"},{"n":"reparyl Gel","c":"جيل"},{"n":"Revo Tab","c":"أقراص"},{"n":"Riri","c":"ألبان وأغذية أطفال","t":"فواكه وحليب"},{"n":"Rivarospire 2.5 Tab","c":"أقراص"},{"n":"Ropabalgin Cream","c":"كريم ومراهم"},{"n":"Ropalgin Cream","c":"كريم ومراهم"},{"n":"Rotmoov 40g Cream","c":"كريم ومراهم"},{"n":"Rowachol Cap","c":"كبسولات"},{"n":"Rowatinex Cap","c":"كبسولات"},{"n":"Royal Gelly Cap","c":"كبسولات"},{"n":"Royal regim tea","c":"أخرى","t":"الحجم الكبير"},{"n":"Royal regime Tea","c":"أخرى","t":"الحجم الكبير"},{"n":"Rumacimap 60 Tab","c":"أقراص"},{"n":"Ruta Panthenol Cream","c":"كريم ومراهم"},{"n":"RX Cream","c":"كريم ومراهم"},{"n":"RX Gel","c":"جيل"},{"n":"RX Spray","c":"بخاخ"},{"n":"Sanso D3 10000 Tab","c":"أقراص"},{"n":"Sediproct Cream","c":"كريم ومراهم"},{"n":"Sediral Active Sachets","c":"أكياس"},{"n":"Sediral folic Sachets","c":"أكياس"},{"n":"Sekem","c":"أخرى","t":"اعشاب الشتاء"},{"n":"Selokenzoc 50 Tab","c":"أقراص"},{"n":"Seroxat CR 25 Tab","c":"أقراص"},{"n":"Sideral Active Sachets","c":"أكياس"},{"n":"Simethicon Drops","c":"نقط"},{"n":"Sinimet Tab","c":"أقراص"},{"n":"Sinlerg Tab","c":"أقراص"},{"n":"Sinlerge Tab","c":"أقراص"},{"n":"Sinupret forte Tab","c":"أقراص"},{"n":"Skino rich Cream","c":"كريم ومراهم"},{"n":"Solo Fresh E.D","c":"قطرة عين وأذن"},{"n":"Soralone Cica Cream Gel","c":"كريم ومراهم"},{"n":"Spascolon 100 Tab","c":"أقراص"},{"n":"Spasmodigestine Tab","c":"أقراص"},{"n":"Spasmofeen Amp","c":"أمبولات"},{"n":"Spasmofigestin Tab","c":"أقراص"},{"n":"Spasmopyralgin Tab","c":"أقراص"},{"n":"Specton 25 Tab","c":"أقراص"},{"n":"Spectone 25 Tab","c":"أقراص"},{"n":"Starville 200ml Cleanser Gel","c":"جيل"},{"n":"Starville Whitening Cleanser 200 Ml","c":"غسول ولوسيون"},{"n":"Starville Whitening Cream","c":"كريم ومراهم"},{"n":"Statomain 100 Tab","c":"أقراص"},{"n":"Stellasile Tab","c":"أقراص"},{"n":"Steronate Tab","c":"أقراص"},{"n":"Stringazole Tab","c":"أقراص"},{"n":"Stripselse","c":"أخرى","t":"برتقال وعسل ولمون"},{"n":"Striptoquin Tab","c":"أقراص"},{"n":"Sugaloy","c":"أخرى"},{"n":"Sugarlo plus (50/1000) Tab","c":"أقراص"},{"n":"Sugarlo plus (50/1000)/(50/500) Tab","c":"أقراص"},{"n":"Sugarlo plus (50/850) /(50/1000) Tab","c":"أقراص"},{"n":"Sugarlo plus 50/500 Tab","c":"أقراص"},{"n":"Sugarlo plus 50/850 Tab","c":"أقراص"},{"n":"Sulfax 120g Gel","c":"جيل"},{"n":"Sulfax 60g Gel","c":"جيل"},{"n":"Suprax 400 Tab","c":"أقراص"},{"n":"Suprax 60ml Susp","c":"شراب"},{"n":"Sweetal Sugar","c":"أخرى","t":"المعلقه الواحده"},{"n":"Sweetal Sugar 300 Tab","c":"أقراص"},{"n":"Sweetal Sugar 50 / 100 Tab","c":"أقراص"},{"n":"Sympaprost 8 Cap","c":"كبسولات"},{"n":"Sympaprost 8 Tab","c":"أقراص"},{"n":"Tadalong 20 Tab","c":"أقراص"},{"n":"Tamsulin Tab","c":"أقراص"},{"n":"Tavacin 500 Tab","c":"أقراص"},{"n":"Tavacin 750 Tab","c":"أقراص"},{"n":"Tavanic 500 Tab","c":"أقراص"},{"n":"Tavoniflox 500/750 Tab","c":"أقراص"},{"n":"Tears guard E.D","c":"قطرة عين وأذن"},{"n":"Tebonina forte 40 Tab","c":"أقراص"},{"n":"Tegritol 200 Tab","c":"أقراص"},{"n":"Tegritol 400 CR Tab","c":"أقراص"},{"n":"Telfast 180 Tab","c":"أقراص"},{"n":"Telfast Syrup","c":"شراب"},{"n":"Terramycin E.Oint","c":"كريم ومراهم"},{"n":"Terramycin E.Ointment","c":"كريم ومراهم"},{"n":"Texacort Cream","c":"كريم ومراهم"},{"n":"Thiotacid 600 Comp Tab","c":"أقراص"},{"n":"Thiotacid 600 Original Cap","c":"كبسولات"},{"n":"Thiotacid 600Comp Cap","c":"كبسولات"},{"n":"Thiotacid Comp 600 Cap","c":"كبسولات"},{"n":"Ticanase plus Spray","c":"بخاخ"},{"n":"Ticanase Spray","c":"بخاخ"},{"n":"Tiratam 1000 Tab","c":"أقراص"},{"n":"Tobradex E.D","c":"قطرة عين وأذن"},{"n":"Tobrin E.D","c":"قطرة عين وأذن"},{"n":"Tobrin E.Ointment","c":"كريم ومراهم"},{"n":"Torsertec 20 Tab","c":"أقراص"},{"n":"Total Syrup","c":"شراب"},{"n":"Totavit Tab","c":"أقراص"},{"n":"Travodermal Cream","c":"كريم ومراهم"},{"n":"Treflucan 150 Cap","c":"كبسولات"},{"n":"Triactin Tab","c":"أقراص"},{"n":"Triactine Syrup","c":"شراب"},{"n":"Triactine Tab","c":"أقراص"},{"n":"Trillerge E.D","c":"قطرة عين وأذن"},{"n":"Trimed flu Cap","c":"كبسولات"},{"n":"Triosept Tab","c":"أقراص"},{"n":"Tritace 1.25 Tab","c":"أقراص"},{"n":"Tritace 2.5 Tab","c":"أقراص"},{"n":"Tritace Max Tab","c":"أقراص"},{"n":"Tritospot Cream","c":"كريم ومراهم"},{"n":"Tryptizole 10 Tab","c":"أقراص"},{"n":"Tryptizole 25 Tab","c":"أقراص"},{"n":"Tulango slim Cap","c":"كبسولات"},{"n":"Tussi stop Syrup","c":"شراب"},{"n":"Twinzole E.D","c":"قطرة عين وأذن"},{"n":"Tymer E.D","c":"قطرة عين وأذن"},{"n":"U richi Panthenol 25g Cream","c":"كريم ومراهم"},{"n":"U richi Panthenol 50g Cream","c":"كريم ومراهم"},{"n":"U richi Panthenol Gel","c":"جيل"},{"n":"Ultracain Gel","c":"جيل"},{"n":"Ure care Cream","c":"كريم ومراهم"},{"n":"Urginafect 5 Tab","c":"أقراص"},{"n":"Uricol N Eff","c":"فوار"},{"n":"Uripan 5 Tab","c":"أقراص"},{"n":"Urivin Eff","c":"فوار"},{"n":"Urivin N / Urosolvin Eff","c":"فوار"},{"n":"Urso plus Cap","c":"كبسولات"},{"n":"Ursofalk 250 Cap","c":"كبسولات"},{"n":"Vastaflam Tab","c":"أقراص"},{"n":"Vastarel MR Tab","c":"أقراص"},{"n":"Vental Comp Spray","c":"بخاخ"},{"n":"Vental Spray","c":"بخاخ","t":"العاديه"},{"n":"Ventolin Syrup","c":"شراب"},{"n":"Vermizole Syrup","c":"شراب"},{"n":"Vermizole Tab","c":"أقراص"},{"n":"Verserc 16 Tab","c":"أقراص","t":"نجيب واحده بسسس"},{"n":"Verserc 24 Tab","c":"أقراص"},{"n":"Viatrazo Cream","c":"كريم ومراهم"},{"n":"Viatrazo V.Supp / V.Cream","c":"كريم ومراهم"},{"n":"Vibramycin 100 Cap","c":"كبسولات"},{"n":"Vibramycin Cap","c":"كبسولات"},{"n":"Vidrop","c":"أخرى"},{"n":"Vildaformin 5/1000 Tab","c":"أقراص"},{"n":"Vildaglus plus 50/1000 Tab","c":"أقراص"},{"n":"Vinax Tab","c":"أقراص"},{"n":"Viseralgin Amp","c":"أمبولات"},{"n":"Viseralgin Syrup","c":"شراب"},{"n":"Viseralgin Tab","c":"أقراص"},{"n":"Vitacid G Eff","c":"فوار"},{"n":"Vitamin E 400 Cap","c":"كبسولات"},{"n":"Vitamount for woman Cap","c":"كبسولات"},{"n":"Vitastress Tab","c":"أقراص"},{"n":"Voltaren 100g Gel","c":"جيل"},{"n":"Voltaren 25g Gel","c":"جيل"},{"n":"Voltaren 50 Tab","c":"أقراص"},{"n":"Voltaren Amp","c":"أمبولات"},{"n":"Vonaspire 10 Tab","c":"أقراص"},{"n":"Xanthistop 80 Tab","c":"أقراص"},{"n":"Xithron 5 Cap","c":"كبسولات"},{"n":"Yasmin Tab","c":"أقراص"},{"n":"Zadmycin Cream","c":"كريم ومراهم"},{"n":"Zanoglid 30/4 Tab","c":"أقراص"},{"n":"Zestril 10 Tab","c":"أقراص","t":"عايزين خمس علب ضروووري"},{"n":"Zestril 5 Tab","c":"أقراص"},{"n":"Zinc olive Cream","c":"كريم ومراهم"},{"n":"Zinctron Cap","c":"كبسولات"},{"n":"Zinctron Tab","c":"أقراص"},{"n":"Zisrocin Cap","c":"كبسولات"},{"n":"Zisrocin Susp","c":"شراب"},{"n":"Zitamycin Cream","c":"كريم ومراهم"},{"n":"Zovirax Tab","c":"أقراص"},{"n":"Zurcal 40 Tab","c":"أقراص"},{"n":"Zurcal Vial","c":"فيال / حقن"},{"n":"Zyrtec Tab","c":"أقراص"}];
+
+const CATS = ["أقراص","كبسولات","شراب","نقط","أمبولات","فيال / حقن","كريم ومراهم","جيل","لبوس","بخاخ","قطرة عين وأذن","فوار","أكياس","غسول ولوسيون","ألبان وأغذية أطفال","أخرى"];
+
+/* ============================================================
+   helpers
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const pad = n => String(n).padStart(2,'0');
+/* مفتاح اليوم بالتوقيت المحلي (مش UTC) عشان اليوم يتقفل الساعة 12 بتوقيت مصر */
+const KEY = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const fromKey = k => { const [y,m,d] = k.split('-').map(Number); return new Date(y, m-1, d); };
+const addDays = (k,n) => { const d = fromKey(k); d.setDate(d.getDate()+n); return KEY(d); };
+const diffDays = (a,b) => Math.round((fromKey(b) - fromKey(a)) / 864e5);
+const AR_DATE  = d => d.toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const AR_DAY   = d => d.toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'});
+const AR_SHORT = d => d.toLocaleDateString('ar-EG',{day:'numeric',month:'short'});
+const AR_MONTH = d => d.toLocaleDateString('ar-EG',{month:'long',year:'numeric'});
+const AR_MON   = d => d.toLocaleDateString('ar-EG',{month:'short'});
+const AR_TIME  = t => new Date(t).toLocaleTimeString('ar-EG',{hour:'numeric',minute:'2-digit'});
+const esc = s => String(s??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm = s => (s||'').toLowerCase().replace(/[\s\-\/\.\,\(\)]/g,'');
+
+let state = { items:[], records:[], suppliers:[], draft:{}, settings:{name:'',wa:'',big:false}, mode:'local', today:KEY(new Date()) };
+let DB = null, unsubToday = null;
+
+const LS = {
+  get(k,f){ try{ return JSON.parse(localStorage.getItem('rx_'+k)) ?? f }catch(e){ return f } },
+  set(k,v){ try{ localStorage.setItem('rx_'+k, JSON.stringify(v)) }catch(e){} }
+};
+
+/* ============================================================
+   boot
+   ============================================================ */
+async function boot(){
+  state.settings = {name:'', wa:'', big:false, ...LS.get('settings', {})};
+  applyBig();
+  if (FIREBASE_CONFIG.apiKey) {
+    try {
+      const [{initializeApp},fs] = await Promise.all([
+        import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js'),
+        import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js')
+      ]);
+      const app = initializeApp(FIREBASE_CONFIG);
+      const db = fs.initializeFirestore(app, { localCache: fs.persistentLocalCache({tabManager: fs.persistentMultipleTabManager()}) });
+      DB = { db, ...fs };
+      state.mode = 'cloud';
+      setStatus('متصل بالسحابة','on');
+      await loadCloud();
+    } catch(err){
+      console.error(err);
+      state.mode = 'local';
+      setStatus('السحابة فشلت — محلي','off');
+      loadLocal();
+    }
+  } else {
+    setStatus('محلي على الجهاز','off');
+    loadLocal();
+    $('#cfgBanner').innerHTML = '<div class="banner">شغّال دلوقتي بذاكرة المتصفح بس. عشان البيانات تتزامن بين الموبايل والكمبيوتر، افتح ملف <b>index.html</b> وحط بيانات Firebase في أول السكريبت.</div>';
+  }
+  sortRecords();
+  startDay();
+  renderAll();
+
+  // تغيير اليوم وهو مفتوح + لما الموبايل يرجع للتطبيق
+  setInterval(checkDayChange, 30000);
+  document.addEventListener('visibilitychange', ()=>{ if (!document.hidden) checkDayChange(); else flush(); });
+  window.addEventListener('pagehide', flush);
+}
+
+function setStatus(t,c){ const e=$('#dbStatus'); e.textContent=t; e.className='status '+c; }
+
+function loadLocal(){
+  state.items = LS.get('items', null) || SEED.map(s => ({id:uid(), name:s.n, category:s.c, supplier:'', note:s.t||''}));
+  state.records = LS.get('records', []);
+  state.suppliers = LS.get('suppliers', []);
+  LS.set('items', state.items);
+}
+function saveLocal(){
+  if (state.mode !== 'local') return;           // في وضع السحابة Firestore نفسه بيخزن أوفلاين
+  LS.set('items', state.items); LS.set('records', state.records); LS.set('suppliers', state.suppliers);
+}
+
+async function loadCloud(){
+  const {db,collection,getDocs,writeBatch,doc,query,orderBy} = DB;
+  const isnap = await getDocs(collection(db,'items'));
+  if (isnap.empty){
+    toast('بيرفع قائمة الأصناف لأول مرة…');
+    for (let i=0;i<SEED.length;i+=450){
+      const b = writeBatch(db);
+      SEED.slice(i,i+450).forEach(s=>b.set(doc(collection(db,'items')), {name:s.n, category:s.c, supplier:'', note:s.t||''}));
+      await b.commit();
+    }
+    const again = await getDocs(collection(db,'items'));
+    state.items = again.docs.map(d=>({id:d.id,...d.data()}));
+  } else state.items = isnap.docs.map(d=>({id:d.id,...d.data()}));
+  const rsnap = await getDocs(query(collection(db,'records'), orderBy('createdAt','desc')));
+  state.records = rsnap.docs.map(d=>({id:d.id,...d.data()}));
+  const ssnap = await getDocs(collection(db,'suppliers'));
+  state.suppliers = ssnap.docs.map(d=>d.data().name);
+}
+
+/* ============================================================
+   writes (مش بنستنى السيرفر — Firestore بيحفظ أوفلاين ويرفع بعدين)
+   ============================================================ */
+const cloudErr = e => { console.error(e); setStatus('في مشكلة في الحفظ','off'); };
+const plain = o => JSON.parse(JSON.stringify(o));
+
+function itemData(it){ return {name:it.name, category:it.category, supplier:it.supplier||'', note:it.note||''}; }
+function itemSave(it){
+  if (state.mode==='cloud'){
+    const {db,doc,setDoc,collection} = DB;
+    if (it._new){ it.id = doc(collection(db,'items')).id; }
+    setDoc(doc(db,'items',it.id), itemData(it)).catch(cloudErr);
+  }
+  delete it._new;
+  saveLocal();
+}
+function itemDelete(id){
+  state.items = state.items.filter(i=>i.id!==id);
+  if (state.draft[id]){ delete state.draft[id]; touch(); }
+  if (state.mode==='cloud'){ const {db,doc,deleteDoc}=DB; deleteDoc(doc(db,'items',id)).catch(cloudErr); }
+  saveLocal();
+}
+function sortRecords(){
+  state.records.sort((a,b)=> recDate(b).localeCompare(recDate(a)) || (b.createdAt||0)-(a.createdAt||0));
+}
+function recordPut(rec){
+  const i = state.records.findIndex(r=>r.id===rec.id);
+  if (i>=0) state.records[i] = rec; else { state.records.push(rec); sortRecords(); }
+  if (state.mode==='cloud'){
+    const {db,doc,setDoc} = DB; const {id, ...data} = rec;
+    setDoc(doc(db,'records',id), plain(data)).catch(cloudErr);
+  }
+  saveLocal();
+}
+function recordDelete(id){
+  state.records = state.records.filter(r=>r.id!==id);
+  if (state.mode==='cloud'){ const {db,doc,deleteDoc}=DB; deleteDoc(doc(db,'records',id)).catch(cloudErr); }
+  saveLocal();
+}
+async function suppliersSave(){
+  if (state.mode==='cloud'){
+    const {db,collection,getDocs,writeBatch,doc} = DB;
+    const snap = await getDocs(collection(db,'suppliers'));
+    const b = writeBatch(db);
+    snap.docs.forEach(d=>b.delete(d.ref));
+    state.suppliers.forEach(n=>b.set(doc(collection(db,'suppliers')), {name:n}));
+    b.commit().catch(cloudErr);
+  }
+  saveLocal();
+}
+
+/* ============================================================
+   كشف اليوم + الأرشفة التلقائية
+   ============================================================ */
+const dayId = k => 'day-' + k;
+const recDate = r => r.date || KEY(new Date(r.createdAt||0));
+const recLines = r => (r.lines||[]).map(NL);
+const todayRec = () => state.records.find(r=>r.id===dayId(state.today));
+const itemByName = n => state.items.find(i=>i.name===n);
+
+function newDay(k){
+  return { id:dayId(k), date:k, dateLabel:AR_DATE(fromKey(k)), createdAt:fromKey(k).getTime(),
+           updatedAt:Date.now(), auto:true, status:'open', draft:{}, lines:[], total:0, zeroCount:0, note:'' };
+}
+function fillCounts(r){ r.total = r.lines.length; r.zeroCount = r.lines.filter(isZero).length; }
+
+function closeRec(r){
+  if (r.status==='open') r.lines = linesFrom(r.draft||{});
+  delete r.draft;
+  fillCounts(r);
+  r.status = 'closed'; r.autoClosed = true; r.closedAt = Date.now(); r.empty = !r.lines.length;
+  recordPut(r);
+}
+
+function startDay(){
+  state.today = KEY(new Date());
+  $('#todayLbl').textContent = AR_DATE(new Date());
+  const T = state.today;
+  const autos = state.records.filter(r=>r.auto);
+
+  // 1) أي كشف مفتوح من يوم فات يتقفل
+  autos.filter(r=>r.status==='open' && r.date<T).forEach(closeRec);
+
+  // 2) الأيام اللي التطبيق مااتفتحش فيها تتسجل "مفيش نواقص"
+  if (autos.length){
+    const first = autos.reduce((m,r)=>r.date<m?r.date:m, T);
+    const stop = first > addDays(T,-120) ? first : addDays(T,-120);
+    const have = new Set(autos.map(r=>r.date));
+    for (let k=addDays(T,-1); k>stop; k=addDays(k,-1)) if (!have.has(k)) closeRec(newDay(k));
+  }
+
+  // 3) كشف النهارده
+  let t = todayRec();
+  if (!t){
+    t = newDay(T);
+    const legacy = LS.get('draft', null);           // مسودة النسخة القديمة
+    if (legacy && Object.keys(legacy).length){ t.draft = legacy; t.lines = linesFrom(legacy); fillCounts(t); }
+    recordPut(t);
+  }
+  LS.set('draft', {});
+  state.draft = {...(t.draft||{})};
+  rebuildHist();
+  subscribeToday();
+}
+
+/* مزامنة كشف النهارده لحظة بلحظة بين الأجهزة */
+function subscribeToday(){
+  if (state.mode!=='cloud') return;
+  if (unsubToday) unsubToday();
+  const {db,doc,onSnapshot} = DB;
+  unsubToday = onSnapshot(doc(db,'records',dayId(state.today)), snap=>{
+    if (!snap.exists() || snap.metadata.hasPendingWrites) return;
+    const data = snap.data(), cur = todayRec();
+    if (cur && (data.updatedAt||0) <= (cur.updatedAt||0)) return;
+    const rec = {id:snap.id, ...data};
+    const i = state.records.findIndex(r=>r.id===rec.id);
+    if (i>=0) state.records[i] = rec; else { state.records.push(rec); sortRecords(); }
+    if (rec.status==='open'){ state.draft = {...(rec.draft||{})}; renderList(); renderBar(); renderChips(); }
+  }, cloudErr);
+}
+
+let saveT = null;
+function touch(){
+  const t = todayRec(); if (!t) return;
+  t.draft = {...state.draft};
+  t.lines = linesFrom(state.draft);
+  fillCounts(t);
+  t.updatedAt = Date.now();
+  clearTimeout(saveT);
+  saveT = setTimeout(()=>{ saveT=null; recordPut(t); }, 500);
+}
+function flush(){ if (saveT){ clearTimeout(saveT); saveT=null; const t=todayRec(); if (t) recordPut(t); } }
+
+function checkDayChange(){
+  if (KEY(new Date()) === state.today) return;
+  flush();
+  const t = todayRec(); if (t) t.draft = {...state.draft};
+  startDay();
+  renderAll();
+  toast('يوم جديد — كشف امبارح اتقفل واتحفظ في الأرشيف');
+}
+
+/* ============================================================
+   تاريخ كل صنف (للمعتاد والمتوقع والكمية الافتراضية)
+   ============================================================ */
+let HIST = {};
+function rebuildHist(){
+  HIST = {};
+  const T = state.today;
+  const recs = state.records.filter(r=>recDate(r) < T)
+    .sort((a,b)=>recDate(a).localeCompare(recDate(b)) || (a.createdAt||0)-(b.createdAt||0));
+  recs.forEach(r=>{
+    const k = recDate(r);
+    recLines(r).forEach(l=>{
+      const h = HIST[l.name] || (HIST[l.name] = {count:0, dates:[], zero:0, last:null, lastDate:null});
+      if (h.dates[h.dates.length-1] !== k){ h.dates.push(k); h.count++; }
+      if (isZero(l)) h.zero++;
+      h.last = {nq:l.nq||1, nu:l.nu||BOX}; h.lastDate = k;
+    });
+  });
+  Object.values(HIST).forEach(h=>{
+    h.gap = h.dates.length>=3 ? diffDays(h.dates[0], h.dates[h.dates.length-1]) / (h.dates.length-1) : null;
+  });
+}
+/* أصناف بتنقص بانتظام وفات عليها وقتها المعتاد */
+function dueList(includePicked){
+  const T = state.today;
+  return state.items.map(i=>({i, h:HIST[i.name]}))
+    .filter(({i,h})=> h && h.gap && (includePicked || !state.draft[i.id]) && diffDays(h.lastDate,T) >= Math.max(1, Math.round(h.gap*0.9)))
+    .map(x=>({...x, ratio: diffDays(x.h.lastDate,T)/x.h.gap}))
+    .sort((a,b)=>b.ratio-a.ratio)
+    .slice(0,40);
+}
+
+/* ============================================================
+   البحث (بيسامح في الأخطاء الإملائية)
+   ============================================================ */
+const toks = q => q.toLowerCase().split(/\s+/).map(norm).filter(Boolean);
+function bigrams(s){ const r=[]; for (let i=0;i<s.length-1;i++) r.push(s.slice(i,i+2)); return r; }
+function dice(a,b){
+  if (a.length<2 || b.length<2) return a===b ? 1 : 0;
+  const A=bigrams(a), m=new Map(); bigrams(b).forEach(x=>m.set(x,(m.get(x)||0)+1));
+  let hit=0; A.forEach(x=>{ const c=m.get(x); if (c){ hit++; m.set(x,c-1); } });
+  return 2*hit/(A.length + (b.length-1));
+}
+const wordsOf = i => i.name.toLowerCase().split(/[\s\/]+/).map(norm).filter(Boolean);
+function searchItems(q, pool){
+  const ts = toks(q); if (!ts.length) return pool;
+  const hits = [];
+  pool.forEach(i=>{
+    const n=norm(i.name), s=norm(i.supplier);
+    if (ts.every(t=>n.includes(t)||s.includes(t))) hits.push({i, s: n.startsWith(ts[0]) ? 2 : 1});
+  });
+  if (hits.length) return hits.sort((a,b)=>b.s-a.s).map(x=>x.i);
+  // مفيش تطابق → بحث تقريبي
+  return pool.map(i=>{
+    const ws = wordsOf(i);
+    const sc = ts.reduce((acc,t)=> acc + Math.max(0, ...ws.map(w=>Math.max(dice(t,w), dice(t,w.slice(0,t.length))))), 0) / ts.length;
+    return {i, sc};
+  }).filter(x=>x.sc>=0.5).sort((a,b)=>b.sc-a.sc).slice(0,40).map(x=>x.i);
+}
+
+/* ============================================================
+   UI — nav + log
+   ============================================================ */
+let filter = { q:'', cat:'', sup:'', pickedOnly:false };
+
+function go(v){
+  $$('nav button').forEach(x=>x.setAttribute('aria-current', x.dataset.v===v));
+  $$('.view').forEach(x=>x.classList.remove('on'));
+  $('#v-'+v).classList.add('on');
+  if (v==='arch') renderArchive();
+  if (v==='stats') renderStats();
+  if (v==='cat') renderCatalog();
+  if (v==='set') renderSettings();
+  if (v==='log'){ renderReminders(); renderList(); }
+  window.scrollTo(0,0);
+}
+$$('nav button').forEach(b=>b.onclick=()=>go(b.dataset.v));
+
+$('#q').oninput = e => { filter.q = e.target.value.trim(); $('#qClear').hidden = !filter.q; renderList(); };
+$('#q').onfocus = e => e.target.select();
+$('#q').onkeydown = e => {
+  if (e.key!=='Enter') return;
+  e.preventDefault();
+  const first = visibleItems()[0];
+  if (!first) return;
+  if (!state.draft[first.id]) pick(first.id);
+  toast(`اتضاف ${first.name}`);
+  $('#q').value=''; filter.q=''; $('#qClear').hidden=true; renderList();
+};
+$('#qClear').onclick = ()=>{ $('#q').value=''; filter.q=''; $('#qClear').hidden=true; renderList(); $('#q').focus(); };
+$('#q2').oninput = () => renderCatalog();
+$('#onlyPicked').onchange = e => { filter.pickedOnly = e.target.checked; renderList(); };
+$('#supFilter').onchange = e => { filter.sup = e.target.value; renderList(); };
+
+/* ---------- بحث بالصوت ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recog = null;
+if (SR){
+  $('#micBtn').hidden = false;
+  $('#micBtn').onclick = ()=>{
+    if (recog){ recog.stop(); return; }
+    try { recog = new SR(); } catch(e){ toast('البحث بالصوت مش متاح هنا — اكتب الاسم'); return; }
+    recog.lang = 'en-US'; recog.interimResults = false; recog.maxAlternatives = 5;
+    $('#micBtn').classList.add('on'); toast('اتكلم… قول اسم الصنف بالإنجليزي');
+    recog.onresult = e => {
+      const alts = [...e.results[0]].map(a=>a.transcript.trim()).filter(Boolean);
+      const best = alts.find(a=>searchItems(a, state.items).length) || alts[0] || '';
+      $('#q').value = best; filter.q = best; $('#qClear').hidden = !best; renderList();
+    };
+    recog.onerror = e => { toast(e.error==='not-allowed' ? 'اسمح للمتصفح يستخدم المايك' : 'مسمعتش كويس — جرّب تاني أو اكتب'); };
+    recog.onend = () => { recog = null; $('#micBtn').classList.remove('on'); };
+    recog.start();
+  };
+}
+
+function visibleItems(){
+  let pool = state.items.filter(i=>{
+    if (filter.cat==='★'){ if (!((HIST[i.name]?.count||0) >= 2)) return false; }
+    else if (filter.cat && filter.cat!=='⏰' && i.category!==filter.cat) return false;
+    if (filter.sup && (i.supplier||'')!==filter.sup) return false;
+    if (filter.pickedOnly && !state.draft[i.id]) return false;
+    return true;
+  });
+  if (filter.cat==='⏰'){ const ids = new Set(pool.map(i=>i.id)); pool = dueList(true).map(x=>x.i).filter(i=>ids.has(i.id)); }
+  if (filter.cat==='★') pool = pool.slice().sort((a,b)=>HIST[b.name].count-HIST[a.name].count);
+  if (filter.q) return searchItems(filter.q, pool);
+  // المختار النهارده يظهر فوق عشان تعدّل كميته بسهولة
+  return [...pool.filter(i=>state.draft[i.id]), ...pool.filter(i=>!state.draft[i.id])];
+}
+
+function renderChips(){
+  const counts = {};
+  state.items.forEach(i=>counts[i.category]=(counts[i.category]||0)+1);
+  const usual = state.items.filter(i=>(HIST[i.name]?.count||0)>=2).length;
+  const due = dueList(false).length;
+  if (filter.cat==='★' && !usual) filter.cat='';
+  const ch = (c,label,n,cls='') => `<button class="chip ${cls}" data-c="${c}" aria-pressed="${filter.cat===c}">${label}<span class="c">${n}</span></button>`;
+  $('#catChips').innerHTML =
+      ch('', 'الكل', state.items.length)
+    + (usual ? ch('★','المعتاد',usual,'spec') : '')
+    + (due||filter.cat==='⏰' ? ch('⏰','غالبًا خلص',due,'spec due') : '')
+    + CATS.filter(c=>counts[c]).map(c=>ch(c,c,counts[c])).join('');
+  $$('#catChips .chip').forEach(b=>b.onclick=()=>{ filter.cat=b.dataset.c; renderChips(); renderList(); });
+}
+
+function renderSupFilter(){
+  const cur = filter.sup;
+  $('#supFilter').innerHTML = '<option value="">كل الموردين</option>' +
+    state.suppliers.map(s=>`<option ${s===cur?'selected':''}>${esc(s)}</option>`).join('');
+}
+
+function renderList(){
+  const items = visibleItems();
+  $('#listCount').textContent = `${items.length} صنف`;
+  const last = lastFilledRec();
+  $('#repeatBtn').hidden = !last;
+  if (!items.length){
+    $('#itemList').innerHTML = filter.cat==='⏰'
+      ? `<div class="empty"><b>مفيش حاجة متوقع تكون خلصت</b>القائمة دي بتتملى لوحدها لما الأرشيف يكبر.</div>`
+      : `<div class="empty"><b>مفيش نتايج</b>جرّب كلمة تانية، أو ضيف الصنف من تبويب «الأصناف».</div>`;
+    return;
+  }
+  const slice = items.slice(0, 400);
+  $('#itemList').innerHTML = slice.map(i=>{
+    const d = D(i.id), h = HIST[i.name];
+    const meta = `<span>${esc(i.category)}</span>${i.supplier?`<b>${esc(i.supplier)}</b>`:''}${h?`<span class="h">نقص ${h.count} ${h.count===1?'مرة':'مرات'}${h.lastDate?` • آخر مرة ${esc(AR_SHORT(fromKey(h.lastDate)))}`:''}</span>`:''}`;
+    const head = `<div class="info">
+        <div class="nm en">${esc(i.name)}${d&&isZero(d)?'<span class="zflag">مفيش منه</span>':''}</div>
+        <div class="meta">${meta}</div>
+      </div>`;
+    if (!d) return `<div class="row" data-id="${i.id}">${head}<button class="add" data-a="pick">ناقص</button></div>`;
+    const step = (f,v)=>`<div class="stepper">
+        <button data-a="-" data-f="${f}" aria-label="أقل">−</button><span class="q">${v}</span><button data-a="+" data-f="${f}" aria-label="أكتر">+</button>
+      </div>`;
+    const z = isZero(d);
+    return `<div class="row picked ${z?'zero':''}" data-id="${i.id}">
+      <div class="top">${head}<button class="rm" data-a="rm" title="شيله من الكشف">✕</button></div>
+      <div class="qrow h"><span class="lbl">موجود</span>
+        ${step('hb',d.hb)}<span class="ul">علب</span>
+        ${step('hs',d.hs)}<span class="ul">شرايط</span></div>
+      <div class="qhint ${z?'z':''}">${z?'مفيش منه ولا حاجة':'موجود منه '+haveText(d)}</div>
+      <div class="qrow"><span class="lbl">محتاج</span>${step('nq',d.nq)}
+        <button class="ubtn ${d.nu===STRIP?'strip':''}" data-a="un">${d.nu}</button></div>
+      <div class="qhint">محتاج ${plural(d.nq,d.nu)}</div>
+    </div>`;
+  }).join('') + (items.length>400 ? `<div class="empty">بيعرض أول 400 صنف — ابحث للوصول لباقي ${items.length-400}.</div>`:'');
+
+  $$('#itemList .row').forEach(r=>{
+    r.querySelectorAll('[data-a]').forEach(b=>b.onclick=ev=>{
+      ev.stopPropagation();
+      const a=b.dataset.a, id=r.dataset.id;
+      if (a==='pick') pick(id);
+      else if (a==='rm') unpick(id);
+      else if (a==='un') flipUnit(id,'nu');
+      else bump(id, b.dataset.f, a==='+'?1:-1);
+    });
+    r.onclick = () => { if (!D(r.dataset.id)) pick(r.dataset.id); };
+  });
+}
+
+/* وحدات القياس + الجمع بالعربي */
+const BOX='علبة', STRIP='شريط';
+function plural(n, unit){
+  if (unit===STRIP) return n===1?'شريط':n===2?'شريطين':(n<=10?`${n} شرايط`:`${n} شريط`);
+  return n===1?'علبة':n===2?'علبتين':(n<=10?`${n} علب`:`${n} علبة`);
+}
+function up(d){
+  if (d==null) return null;
+  if (typeof d === 'number') return {hb:0, hs:0, nq:d, nu:BOX};
+  if ('q' in d) return {hb: d.z?0:1, hs:0, nq:d.q, nu:BOX};
+  if ('hq' in d) return {hb: d.hu===STRIP?0:d.hq, hs: d.hu===STRIP?d.hq:0, nq: d.nq??1, nu: d.nu||BOX};
+  return {hb: d.hb??0, hs: d.hs??0, nq: d.nq??1, nu: d.nu||BOX};
+}
+function D(id){ return up(state.draft[id]); }
+function NL(l){
+  if ('hb' in l) return l;
+  if ('hq' in l) return {...l, hb: l.hu===STRIP?0:l.hq, hs: l.hu===STRIP?l.hq:0};
+  return {...l, hb: l.zero?0:1, hs:0, nq: l.qty??0, nu:BOX};
+}
+const isZero = l => (l.hb||0)===0 && (l.hs||0)===0;
+function haveText(l){
+  const parts = [];
+  if (l.hb) parts.push(plural(l.hb, BOX));
+  if (l.hs) parts.push(plural(l.hs, STRIP));
+  return parts.join(' و');
+}
+function setD(id, patch){
+  const cur = D(id) || {hb:0, hs:0, nq:1, nu:BOX};
+  state.draft[id] = {...cur, ...patch};
+  touch(); renderList(); renderBar();
+}
+/* أول ما تختار صنف بياخد نفس الكمية اللي اتطلبت آخر مرة */
+function pick(id){
+  const it = state.items.find(i=>i.id===id), h = it && HIST[it.name];
+  setD(id, h?.last ? {nq:h.last.nq, nu:h.last.nu} : {});
+}
+function unpick(id){
+  const prev = state.draft[id]; delete state.draft[id]; touch(); renderList(); renderBar();
+  const it = state.items.find(i=>i.id===id);
+  toast(`اتشال ${it?it.name:''}`, ()=>{ state.draft[id]=prev; touch(); renderList(); renderBar(); });
+}
+function bump(id, field, delta){
+  const cur = D(id); if (!cur) return;
+  const min = field==='nq' ? 1 : 0;
+  setD(id, { [field]: Math.max(min, Math.min(999, cur[field]+delta)) });
+}
+function flipUnit(id, field){
+  const cur = D(id); if (!cur) return;
+  setD(id, { [field]: cur[field]===BOX ? STRIP : BOX });
+}
+
+function gKey(l){ return isZero(l) ? 'z' : (l.hb||0)+'|'+(l.hs||0); }
+function gLabel(l){ return isZero(l) ? 'مفيش منه خالص' : 'موجود منه ' + haveText(l); }
+function sortLines(ls){
+  return ls.slice().sort((a,b)=>(a.hb||0)-(b.hb||0) || (a.hs||0)-(b.hs||0) || a.name.localeCompare(b.name));
+}
+function linesFrom(draft){
+  return sortLines(Object.keys(draft).map(id=>{
+    const d = up(draft[id]), it = state.items.find(i=>i.id===id);
+    return (it && d) ? {name:it.name, category:it.category, supplier:it.supplier||'', ...d} : null;
+  }).filter(Boolean));
+}
+const draftLines = () => linesFrom(state.draft);
+
+function renderBar(){
+  const ls = draftLines(), n = ls.length, zn = ls.filter(isZero).length;
+  const t = todayRec();
+  $('#barTitle').textContent = n ? `${n} صنف ناقص` : 'لسه مفيش نواقص';
+  $('#barSub').textContent = n
+    ? (zn ? `منها ${zn} مفيش منه خالص` : 'كلها موجودة بكميات قليلة') + ' • بيتحفظ تلقائي' + (t?.sentAt ? ' • اتبعت ✓' : '')
+    : 'دوس على الصنف الناقص وحدد الكميات';
+  $('#reviewBtn').disabled = !n; $('#clearBtn').disabled = !n;
+}
+
+$('#clearBtn').onclick = ()=>{
+  const prev = {...state.draft};
+  state.draft = {}; touch(); renderList(); renderBar();
+  toast('اتمسح كشف النهارده', ()=>{ state.draft = prev; touch(); renderList(); renderBar(); });
+};
+
+/* ---------- آخر كشف ---------- */
+function lastFilledRec(){ return state.records.find(r=>recDate(r)<state.today && recLines(r).length); }
+function mergeToToday(lines){
+  const added = [];
+  lines.map(NL).forEach(x=>{
+    const it = itemByName(x.name);
+    if (it && !state.draft[it.id]){ state.draft[it.id] = {hb:x.hb||0, hs:x.hs||0, nq:x.nq||1, nu:x.nu||BOX}; added.push(it.id); }
+  });
+  touch(); renderList(); renderBar();
+  return added;
+}
+function mergeWithUndo(lines){
+  const added = mergeToToday(lines);
+  if (!added.length) return toast('كل الأصناف دي موجودة في كشف النهارده');
+  toast(`اتضاف ${added.length} صنف لكشف النهارده`, ()=>{ added.forEach(id=>delete state.draft[id]); touch(); renderList(); renderBar(); });
+}
+$('#repeatBtn').onclick = ()=>{ const r = lastFilledRec(); if (r) mergeWithUndo(recLines(r)); };
+
+/* ---------- التنبيهات أعلى الشاشة ---------- */
+function pendingReview(){
+  const cutoff = addDays(state.today, -7);
+  return state.records.find(r=>r.auto && r.status==='closed' && r.date<state.today && r.date>=cutoff && !r.empty && !r.reviewed && !r.sentAt);
+}
+function renderReminders(){
+  let html = '';
+  const p = pendingReview();
+  if (p){
+    const ls = recLines(p), z = ls.filter(isZero).length;
+    const when = p.date===addDays(state.today,-1) ? 'امبارح' : AR_DAY(fromKey(p.date));
+    html += `<div class="remind" id="rmReview">
+      كشف <b>${esc(when)}</b> اتقفل تلقائي وفيه <b>${ls.length} صنف</b>${z?`، منهم <b style="color:var(--alert)">${z} مفيش منه خالص</b>`:''} — ماتبعتش لسه.
+      <div class="acts">
+        <button class="btn sm wa" data-r="send">مراجعة وإرسال</button>
+        <button class="btn sm ghost" data-r="carry">انقل الناقص لانهارده</button>
+        <button class="btn sm ghost" data-r="ok">تمام، اتراجع</button>
+      </div></div>`;
+  }
+  if (state.mode==='local' && state.records.some(r=>recLines(r).length)){
+    const lb = state.settings.lastBackup || 0, snooze = LS.get('bkSnooze', 0);
+    if (Date.now()-lb > 7*864e5 && Date.now() > snooze){
+      html += `<div class="remind info">البيانات متخزنة على الجهاز ده بس. ${lb?`آخر نسخة احتياطية من ${Math.floor((Date.now()-lb)/864e5)} يوم.`:'لسه ماعملتش نسخة احتياطية.'}
+        <div class="acts"><button class="btn sm green" data-r="bk">نزّل نسخة دلوقتي</button><button class="btn sm ghost" data-r="bklater">بعدين</button></div></div>`;
+    }
+  }
+  $('#remind').innerHTML = html;
+  $$('#remind [data-r]').forEach(b=>b.onclick=()=>{
+    const a = b.dataset.r;
+    if (a==='send') openRecord(p);
+    if (a==='carry'){ mergeWithUndo(recLines(p)); p.reviewed=true; recordPut(p); renderReminders(); }
+    if (a==='ok'){ p.reviewed=true; recordPut(p); renderReminders(); }
+    if (a==='bk') exportJson();
+    if (a==='bklater'){ LS.set('bkSnooze', Date.now()+864e5); renderReminders(); }
+  });
+}
+
+/* ---------- sheet ---------- */
+function openSheet(title, body, foot){
+  $('#sheetTitle').textContent = title;
+  $('#sheetBody').innerHTML = body;
+  $('#sheetFoot').innerHTML = '';
+  (foot||[]).forEach(f=>{
+    const b=document.createElement('button'); b.className='btn sm '+(f.cls||'ghost'); b.textContent=f.label; b.onclick=f.on;
+    $('#sheetFoot').appendChild(b);
+  });
+  $('#sheet').classList.add('on'); $('#scrim').classList.add('on');
+}
+function closeSheet(){ $('#sheet').classList.remove('on'); $('#scrim').classList.remove('on'); }
+$('#scrim').onclick = closeSheet; $('#sheetX').onclick = closeSheet;
+document.addEventListener('keydown', e=>{ if (e.key==='Escape') closeSheet(); });
+
+const noteVal = () => ($('#recNote')?.value || '').trim();
+
+$('#reviewBtn').onclick = ()=>{
+  const t = todayRec(), lines = draftLines(), d = new Date();
+  openSheet('كشف النهارده', reviewHtml(lines, d, true, t?.note) +
+    `<div class="hint">الكشف بيتحفظ تلقائي مع كل تعديل وبيتقفل الساعة 12 بالليل. ممكن تكمّل تضيف عليه عادي.</div>`, [
+    {label:'إرسال واتساب', cls:'wa', on:()=>{ sendWa(lines, d, noteVal()); markSent(t); }},
+    {label:'تصدير PDF', on:()=>doPrint(lines, d, noteVal())},
+    {label:'تمام', cls:'green', on:closeSheet},
+  ]);
+  const ta = $('#recNote'); if (ta && t) ta.oninput = ()=>{ t.note = ta.value; touch(); };
+};
+
+function markSent(r){
+  if (!r) return;
+  r.sentAt = Date.now(); r.reviewed = true;
+  if (r.id===dayId(state.today)) touch(); else recordPut(r);
+  renderBar(); renderReminders();
+}
+
+function reviewHtml(rawLines, date, withNote, note){
+  const lines = sortLines(rawLines.map(NL));
+  const zn = lines.filter(isZero).length;
+  let html = `<div style="font-size:13px;color:var(--muted);margin-bottom:10px">${AR_DATE(date)} — ${lines.length} صنف${zn?` <span style="color:var(--alert);font-weight:600">• ${zn} مفيش منه</span>`:''}</div>`;
+  if (!lines.length) html += `<div class="card"><div class="empty"><b>مفيش نواقص في اليوم ده</b></div></div>`;
+  else {
+    let cur='';
+    html += '<div class="list">';
+    lines.forEach(l=>{
+      if (gKey(l)!==cur){ cur=gKey(l); html += `<div class="row" style="background:var(--paper);padding:7px 13px"><div class="info" style="font-size:12px;color:${isZero(l)?'var(--alert)':'var(--muted)'};font-weight:600">${esc(gLabel(l))}</div></div>`; }
+      html += `<div class="row ${isZero(l)?'zero':''}"><div class="info"><div class="nm en">${esc(l.name)}</div>${l.supplier?`<div class="meta"><b>${esc(l.supplier)}</b></div>`:''}</div><span style="font-weight:600;font-size:13px">${esc(plural(l.nq,l.nu))}</span></div>`;
+    });
+    html += '</div>';
+  }
+  if (withNote) html += `<div class="field" style="margin-top:12px"><label>ملاحظة على الطلبية (اختياري)</label><textarea id="recNote" rows="2" placeholder="مثال: محتاجين Congestal بسرعة">${esc(note||'')}</textarea></div>`;
+  else if (note) html += `<div class="hint">ملاحظة: ${esc(note)}</div>`;
+  return html;
+}
+
+/* ---------- whatsapp ---------- */
+function waText(rawLines, date, note){
+  const lines = sortLines(rawLines.map(NL));
+  const head = (state.settings.name || 'الصيدلية') + ' — نواقص ' + AR_DATE(date);
+  let out = '*' + head + '*\n' + '—'.repeat(14) + '\n';
+  let cur='';
+  lines.forEach(l=>{
+    if (gKey(l)!==cur){ cur=gKey(l); out += `\n*${isZero(l)?'❗ ':''}${gLabel(l)}*\n`; }
+    out += `• ${l.name} — محتاج ${plural(l.nq,l.nu)}\n`;
+  });
+  const zn = lines.filter(isZero).length;
+  out += '\n' + '—'.repeat(14) + `\nالإجمالي: ${lines.length} صنف`;
+  if (zn) out += `\n❗ منها ${zn} صنف مفيش منه خالص`;
+  if (note) out += `\nملاحظة: ${note}`;
+  return out;
+}
+function sendWa(lines, date, note){
+  const txt = encodeURIComponent(waText(lines, date, note));
+  const n = (state.settings.wa||'').replace(/\D/g,'');
+  window.open(n ? `https://wa.me/${n}?text=${txt}` : `https://wa.me/?text=${txt}`, '_blank');
+}
+
+/* ---------- print / pdf ---------- */
+function doPrint(rawLines, date, note){
+  const lines = sortLines(rawLines.map(NL));
+  const n = (note||'').trim();
+  let rows='', cur='';
+  lines.forEach(l=>{
+    if (gKey(l)!==cur){ cur=gKey(l);
+      rows += `<tr><td class="cat ${isZero(l)?'zcat':''}" colspan="3">${isZero(l)?'❗ ':''}${esc(gLabel(l))}</td></tr>`; }
+    rows += `<tr class="${isZero(l)?'zrow':''}">`
+         +  `<td style="text-align:start"><span dir="ltr">${esc(l.name)}</span></td>`
+         +  `<td>${esc(l.supplier||'—')}</td><td class="q">${esc(plural(l.nq,l.nu))}</td></tr>`;
+  });
+  $('#print').innerHTML = `
+    <div class="ph">
+      <h1>${esc(state.settings.name || 'نواقص الصيدلية')}</h1>
+      <div class="d"><div>كشف النواقص</div><div>${AR_DATE(date)}</div></div>
+    </div>
+    ${n?`<div class="note">ملاحظة: ${esc(n)}</div>`:''}
+    <table>
+      <thead><tr><th>الصنف</th><th style="width:100px">المورد</th><th style="width:78px">المطلوب</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="foot"><span>إجمالي الأصناف الناقصة: ${lines.length}${lines.filter(isZero).length?` &nbsp;—&nbsp; منها <span class="bang">❗</span> ${lines.filter(isZero).length} مفيش منه خالص`:''}</span><span>${esc(state.settings.name||'')}</span></div>`;
+  window.print();
+}
+
+/* ============================================================
+   الأصناف
+   ============================================================ */
+function renderCatalog(){
+  const q = $('#q2').value.trim();
+  const list = (q ? searchItems(q, state.items) : state.items).slice(0,400);
+  $('#catCount').textContent = `${state.items.length} صنف`;
+  $('#catList').innerHTML = list.length ? list.map(i=>`
+    <div class="row" data-id="${i.id}">
+      <div class="info"><div class="nm en">${esc(i.name)}</div>
+        <div class="meta"><span>${esc(i.category)}</span>${i.supplier?`<b>${esc(i.supplier)}</b>`:''}${HIST[i.name]?`<span class="h">نقص ${HIST[i.name].count} مرة</span>`:''}</div></div>
+      <button class="btn sm ghost" data-edit>تعديل</button>
+    </div>`).join('') : `<div class="empty"><b>مفيش نتايج</b>ممكن تضيف الصنف جديد.</div>`;
+  $$('#catList [data-edit]').forEach(b=>b.onclick=()=>editItem(b.closest('.row').dataset.id));
+}
+
+function editItem(id){
+  const it = id ? state.items.find(i=>i.id===id) : {id:uid(), name:$('#q2').value.trim(), category:'أقراص', supplier:'', note:'', _new:true};
+  openSheet(id?'تعديل صنف':'صنف جديد', `
+    <div class="field"><label>اسم الصنف</label><input id="fName" dir="ltr" value="${esc(it.name)}" placeholder="Congestal Tab"></div>
+    <div id="dupWarn"></div>
+    <div class="two">
+      <div class="field"><label>التصنيف</label><select id="fCat">${CATS.map(c=>`<option ${c===it.category?'selected':''}>${c}</option>`).join('')}</select></div>
+      <div class="field"><label>المورد (اختياري)</label><select id="fSup"><option value="">—</option>${state.suppliers.map(s=>`<option ${s===it.supplier?'selected':''}>${esc(s)}</option>`).join('')}</select></div>
+    </div>
+    <div class="field"><label>ملاحظة (اختياري)</label><input id="fNote" value="${esc(it.note||'')}" placeholder="مثال: من تبارك"></div>
+  `, [
+    {label:'حفظ', cls:'green', on:()=>{
+      const nm = $('#fName').value.trim();
+      if (!nm) return toast('اكتب اسم الصنف');
+      const oldName = it.name;
+      it.name=nm; it.category=$('#fCat').value; it.supplier=$('#fSup').value; it.note=$('#fNote').value.trim();
+      if (!state.items.find(i=>i.id===it.id)) state.items.push(it);
+      itemSave(it);
+      if (oldName && oldName!==nm && HIST[oldName]){ HIST[nm] = HIST[oldName]; }
+      state.items.sort((a,b)=>a.name.localeCompare(b.name));
+      if (state.draft[it.id]) touch();
+      closeSheet(); renderCatalog(); renderChips(); renderSupFilter(); renderList(); toast('اتحفظ ✓');
+    }},
+    ...(id?[{label:'حذف', cls:'danger', on:()=>{
+      const copy = {...it}, dcopy = state.draft[id];
+      itemDelete(id); closeSheet(); renderCatalog(); renderChips(); renderList(); renderBar();
+      toast(`اتحذف ${copy.name}`, ()=>{
+        state.items.push(copy); state.items.sort((a,b)=>a.name.localeCompare(b.name)); itemSave(copy);
+        if (dcopy){ state.draft[copy.id]=dcopy; touch(); }
+        renderCatalog(); renderChips(); renderList(); renderBar();
+      });
+    }}]:[]),
+    {label:'إلغاء', on:closeSheet}
+  ]);
+  // تحذير لو في صنف اسمه قريب (عشان التكرار زي Antodin/Antodine)
+  const warn = ()=>{
+    const v = $('#fName').value.trim();
+    const sim = v.length<3 ? [] : searchItems(v, state.items.filter(i=>i.id!==it.id)).slice(0,3);
+    $('#dupWarn').innerHTML = sim.length ? `<div class="banner" style="margin-top:-4px">في أصناف قريبة: <span dir="ltr">${sim.map(s=>esc(s.name)).join(' ، ')}</span></div>` : '';
+  };
+  $('#fName').oninput = warn; if (!id) warn();
+}
+$('#addItemBtn').onclick = ()=>editItem(null);
+
+$('#manageSupBtn').onclick = ()=>{
+  const draw = ()=> state.suppliers.length
+    ? state.suppliers.map((s,ix)=>`<div class="row"><div class="info"><div class="nm">${esc(s)}</div></div><button class="btn sm danger" data-i="${ix}">حذف</button></div>`).join('')
+    : '<div class="empty"><b>مفيش موردين</b>ضيف المورد عشان تربط بيه الأصناف وتفلتر بيه.</div>';
+  const body = `<div class="field"><label>إضافة مورد</label>
+      <div style="display:flex;gap:8px"><input id="supNew" placeholder="اسم المورد"><button class="btn sm green" id="supAdd">إضافة</button></div></div>
+      <div class="list" id="supList">${draw()}</div>`;
+  openSheet('الموردين', body, [{label:'تم', cls:'green', on:async()=>{ await suppliersSave(); closeSheet(); renderSupFilter(); renderCatalog(); }}]);
+  const rebind = ()=>{
+    $('#supList').innerHTML = draw();
+    $$('#supList [data-i]').forEach(b=>b.onclick=()=>{ state.suppliers.splice(+b.dataset.i,1); rebind(); });
+  };
+  const add = ()=>{
+    const v = $('#supNew').value.trim();
+    if (!v || state.suppliers.includes(v)) return;
+    state.suppliers.push(v); $('#supNew').value=''; rebind();
+  };
+  $('#supAdd').onclick = add;
+  $('#supNew').onkeydown = e=>{ if (e.key==='Enter') add(); };
+  rebind();
+};
+
+/* ============================================================
+   الأرشيف + الفلاتر
+   ============================================================ */
+let archF = { range:'30', from:'', to:'', q:'', sup:'', cat:'', st:'', hideEmpty:true };
+const RANGES = [['7','آخر 7 أيام'],['30','آخر 30 يوم'],['month','الشهر ده'],['prev','الشهر اللي فات'],['90','آخر 3 شهور'],['all','الكل'],['custom','من – إلى']];
+
+function rangeBounds(range){
+  const T = state.today;
+  if (range==='7') return [addDays(T,-6), T];
+  if (range==='30') return [addDays(T,-29), T];
+  if (range==='90') return [addDays(T,-89), T];
+  if (range==='month') return [T.slice(0,8)+'01', T];
+  if (range==='prev'){ const d=fromKey(T.slice(0,8)+'01'); d.setDate(0); const e=KEY(d); return [e.slice(0,8)+'01', e]; }
+  if (range==='custom') return [archF.from||'0000-01-01', archF.to||'9999-12-31'];
+  const first = state.records.length ? recDate(state.records[state.records.length-1]) : T;
+  return [first, T];
+}
+function recStatus(r){
+  if (r.status==='open') return ['open','بيتسجل النهارده'];
+  if (r.receivedAt) return ['recv','اتستلم'];
+  if (r.sentAt) return ['sent','اتبعت'];
+  if (r.auto) return ['auto','اتقفل تلقائي'];
+  return ['old','محفوظ يدوي'];
+}
+const supOf = l => l.supplier || itemByName(l.name)?.supplier || '';
+const catOf = l => l.category || itemByName(l.name)?.category || '';
+function lineFilterOn(){ return !!(archF.q || archF.sup || archF.cat); }
+function lineOk(l){
+  if (archF.sup && supOf(l)!==archF.sup) return false;
+  if (archF.cat && catOf(l)!==archF.cat) return false;
+  if (archF.q){ const n = norm(l.name); if (!toks(archF.q).every(t=>n.includes(t))) return false; }
+  return true;
+}
+
+function renderArchFilters(){
+  const opts = (arr, cur, all) => `<option value="">${all}</option>` + arr.map(v=>`<option ${v===cur?'selected':''} value="${esc(v)}">${esc(v)}</option>`).join('');
+  $('#archFilters').innerHTML = `
+    <div class="chips" id="archRange">${RANGES.map(([k,l])=>`<button class="chip" data-k="${k}" aria-pressed="${archF.range===k}">${l}</button>`).join('')}</div>
+    <div class="fgrid">
+      <div class="dates ${archF.range==='custom'?'on':''}">
+        <label>من<input type="date" id="afFrom" value="${archF.from}"></label>
+        <label>إلى<input type="date" id="afTo" value="${archF.to}"></label>
+      </div>
+      <input class="full" id="afQ" type="search" placeholder="ابحث عن صنف في الأرشيف (يطلعلك كل الأيام اللي نقص فيها)" value="${esc(archF.q)}" autocomplete="off">
+      <select id="afSup">${opts(state.suppliers, archF.sup, 'كل الموردين')}</select>
+      <select id="afCat">${opts(CATS, archF.cat, 'كل التصنيفات')}</select>
+      <select id="afSt">
+        ${[['','كل الحالات'],['auto','اتقفل وماتبعتش'],['sent','اتبعت'],['recv','اتستلم'],['old','محفوظ يدوي']].map(([v,l])=>`<option value="${v}" ${archF.st===v?'selected':''}>${l}</option>`).join('')}
+      </select>
+      <label class="chk"><input type="checkbox" id="afEmpty" ${archF.hideEmpty?'checked':''}> خبي الأيام الفاضية</label>
+    </div>
+    <button class="linkbtn" id="afReset" ${(lineFilterOn()||archF.st)?'':'hidden'}>مسح الفلاتر</button>`;
+  $$('#archRange .chip').forEach(b=>b.onclick=()=>{ archF.range=b.dataset.k; renderArchive(); });
+  $('#afFrom').onchange = e=>{ archF.from=e.target.value; renderArchive(); };
+  $('#afTo').onchange = e=>{ archF.to=e.target.value; renderArchive(); };
+  $('#afQ').oninput = e=>{ archF.q=e.target.value.trim(); $('#afReset').hidden = !(lineFilterOn()||archF.st); renderArchList(); };
+  $('#afSup').onchange = e=>{ archF.sup=e.target.value; renderArchive(); };
+  $('#afCat').onchange = e=>{ archF.cat=e.target.value; renderArchive(); };
+  $('#afSt').onchange = e=>{ archF.st=e.target.value; renderArchive(); };
+  $('#afEmpty').onchange = e=>{ archF.hideEmpty=e.target.checked; renderArchList(); };
+  $('#afReset').onclick = ()=>{ Object.assign(archF,{q:'',sup:'',cat:'',st:''}); renderArchive(); };
+}
+function renderArchive(){ renderArchFilters(); renderArchList(); }
+
+function dayTitle(k){
+  if (k===state.today) return 'النهارده';
+  if (k===addDays(state.today,-1)) return 'امبارح';
+  return AR_DAY(fromKey(k));
+}
+
+function renderArchList(){
+  const [a,b] = rangeBounds(archF.range);
+  const lf = lineFilterOn();
+  const rows = state.records.filter(r=>{
+    const k = recDate(r); if (k<a || k>b) return false;
+    if (archF.st){ const s = recStatus(r)[0]; if (s!==archF.st) return false; }
+    return true;
+  }).map(r=>{
+    const all = recLines(r);
+    return {r, all, shown: lf ? all.filter(lineOk) : all};
+  }).filter(x=> lf ? x.shown.length : (archF.hideEmpty ? (x.all.length || x.r.status==='open') : true));
+
+  const days = new Set(rows.filter(x=>x.shown.length).map(x=>recDate(x.r))).size;
+  const tot = rows.reduce((s,x)=>s+x.shown.length,0), z = rows.reduce((s,x)=>s+x.shown.filter(isZero).length,0);
+  $('#archSum').innerHTML = rows.length
+    ? (lf && archF.q
+        ? `<b>${esc(archF.q)}</b> نقص في <b>${days}</b> يوم في الفترة دي${z?` — منهم ${z} مرة مفيش منه خالص`:''}`
+        : `<b>${days}</b> يوم فيه نواقص • <b>${tot}</b> صنف ناقص${z?` • <span style="color:var(--alert)">${z} مفيش منه</span>`:''}`)
+    : '';
+
+  if (!rows.length){
+    $('#archList').innerHTML = `<div class="card" style="margin-top:10px"><div class="empty"><b>${state.records.length?'مفيش كشوف بالفلاتر دي':'الأرشيف فاضي'}</b>${state.records.length?'غيّر الفترة أو امسح الفلاتر.':'كشف كل يوم بيتسجل هنا تلقائي.'}</div></div>`;
+    return;
+  }
+  let html = '', month = '';
+  rows.forEach(({r, all, shown})=>{
+    const k = recDate(r), mk = k.slice(0,7);
+    if (mk!==month){
+      month = mk;
+      const mRows = rows.filter(x=>recDate(x.r).slice(0,7)===mk);
+      const mDays = new Set(mRows.filter(x=>x.shown.length).map(x=>recDate(x.r))).size;
+      html += `<div class="mhead">${esc(AR_MONTH(fromKey(k)))}<span>${mDays} يوم فيه نواقص</span></div>`;
+    }
+    if (!all.length && r.status!=='open'){ html += `<div class="emptyday">${esc(dayTitle(k))}<span>مفيش نواقص</span></div>`; return; }
+    const [sc, sl] = recStatus(r);
+    const zc = shown.filter(isZero).length;
+    const q = archF.q ? toks(archF.q) : [];
+    const nameHtml = l => { const s = esc(l.name); return q.length && lineOk(l) ? `<mark>${s}</mark>` : s; };
+    const preview = sortLines(shown).slice(0,8).map(l=>(isZero(l)?'❗':'')+nameHtml(l)+' ('+l.nq+')').join('، ') + (shown.length>8?' …':'');
+    html += `<div class="card" data-id="${r.id}">
+      <div class="t"><b>${esc(dayTitle(k))}</b><em class="pill ${sc}">${sl}</em><span>${shown.length}${lf?` من ${all.length}`:''} صنف</span></div>
+      <div class="p en">${preview || '<span style="color:var(--muted)">لسه مفيش نواقص النهارده</span>'}</div>
+      ${zc?`<div class="cnt"><span class="zz">${zc} مفيش منه خالص</span></div>`:''}
+      <div class="acts">
+        ${r.status==='open'
+          ? `<button class="btn sm green" data-a="open">افتحه</button>`
+          : `<button class="btn sm ghost" data-a="view">عرض</button>`}
+        <button class="btn sm wa" data-a="wa">واتساب</button>
+        <button class="btn sm ghost" data-a="pdf">PDF</button>
+        ${r.status!=='open' ? `<button class="btn sm ghost" data-a="reuse">انقله لانهارده</button>` : ''}
+        ${r.status!=='open' ? (r.receivedAt ? `<button class="btn sm ghost" data-a="unrecv">إلغاء الاستلام</button>` : `<button class="btn sm ghost" data-a="recv">اتستلم ✓</button>`) : ''}
+        ${r.status!=='open' ? `<button class="btn sm danger" data-a="del">حذف</button>` : ''}
+      </div>
+    </div>`;
+  });
+  $('#archList').innerHTML = html;
+
+  $$('#archList .card[data-id]').forEach(c=>{
+    const r = state.records.find(x=>x.id===c.dataset.id);
+    c.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{
+      const a = b.dataset.a, d = fromKey(recDate(r));
+      if (a==='open') go('log');
+      if (a==='view') openRecord(r);
+      if (a==='pdf') doPrint(recLines(r), d, r.note);
+      if (a==='wa'){ sendWa(recLines(r), d, r.note); markSent(r); renderArchList(); }
+      if (a==='reuse') mergeWithUndo(recLines(r));
+      if (a==='recv'){ r.receivedAt = Date.now(); r.reviewed = true; recordPut(r); renderArchList(); toast('اتسجل إنه اتستلم ✓'); }
+      if (a==='unrecv'){ delete r.receivedAt; recordPut(r); renderArchList(); }
+      if (a==='del'){
+        const copy = plain(r); recordDelete(r.id); rebuildHist(); renderArchList();
+        toast('اتحذف الكشف', ()=>{ recordPut(copy); rebuildHist(); renderArchList(); });
+      }
+    });
+  });
+}
+
+function openRecord(r){
+  const d = fromKey(recDate(r)), lines = recLines(r);
+  openSheet(r.dateLabel || AR_DATE(d), reviewHtml(lines, d, false, r.note), [
+    {label:'إرسال واتساب', cls:'wa', on:()=>{ sendWa(lines, d, r.note); markSent(r); closeSheet(); if ($('#v-arch').classList.contains('on')) renderArchList(); }},
+    {label:'PDF', on:()=>doPrint(lines, d, r.note)},
+    {label:'انقله لانهارده', on:()=>{ mergeWithUndo(lines); r.reviewed=true; recordPut(r); closeSheet(); renderReminders(); }},
+    {label:'إغلاق', on:closeSheet}
+  ]);
+}
+
+function archiveForItem(name){
+  Object.assign(archF, {q:name, sup:'', cat:'', st:'', range:'all', hideEmpty:true});
+  go('arch');
+}
+
+/* ============================================================
+   الإحصائيات
+   ============================================================ */
+let statR = '30';
+const SRANGES = [['7','أسبوع'],['30','30 يوم'],['month','الشهر ده'],['90','3 شهور'],['all','الكل']];
+const WEEK = ['السبت','الأحد','الاتنين','التلات','الأربع','الخميس','الجمعة'];
+const wIdx = k => (fromKey(k).getDay()+1) % 7;       // السبت = 0
+
+function renderStats(){
+  $('#statRange').innerHTML = SRANGES.map(([k,l])=>`<button class="chip" data-k="${k}" aria-pressed="${statR===k}">${l}</button>`).join('');
+  $$('#statRange .chip').forEach(b=>b.onclick=()=>{ statR=b.dataset.k; renderStats(); });
+
+  if (!state.records.some(r=>recLines(r).length)){
+    $('#statsBox').innerHTML = `<div class="card"><div class="empty"><b>لسه مفيش بيانات</b>الإحصائيات بتظهر أول ما يتسجل نواقص.</div></div>`;
+    return;
+  }
+  const T = state.today;
+  const [a,b] = statR==='all' ? rangeBounds('all') : rangeBounds(statR);
+  const len = diffDays(a,b)+1;
+  const pa = addDays(a,-len), pb = addDays(a,-1);
+
+  const collect = (x,y)=>{
+    const days = {};
+    state.records.forEach(r=>{ const k=recDate(r); if (k<x||k>y) return; (days[k] ||= []).push(...recLines(r)); });
+    return days;
+  };
+  const cur = collect(a,b), prev = collect(pa,pb);
+  const kpi = d => {
+    const ks = Object.keys(d), full = ks.filter(k=>d[k].length), ls = ks.flatMap(k=>d[k]);
+    return {days:full.length, lines:ls.length, zero:ls.filter(isZero).length, avg: full.length ? ls.length/full.length : 0};
+  };
+  const K = kpi(cur), P = kpi(prev), hasPrev = statR!=='all' && P.lines>0;
+  const delta = (c,p) => {
+    if (!hasPrev || !p) return '<em>&nbsp;</em>';
+    const pc = Math.round((c-p)/p*100);
+    if (pc===0) return '<em>زي الفترة اللي فاتت</em>';
+    return `<em class="${pc>0?'up':'down'}">${pc>0?'▲':'▼'} ${Math.abs(pc)}% عن الفترة اللي فاتت</em>`;
+  };
+
+  // الرسم اليومي
+  const dStart = len>90 ? addDays(b,-89) : a;
+  const dayBars = [];
+  for (let k=dStart; k<=b; k=addDays(k,1)) dayBars.push({k, v:(cur[k]||[]).length});
+  const dmax = Math.max(1, ...dayBars.map(x=>x.v));
+  const daily = `<div class="chart">${dayBars.map(x=>`<div class="col ${x.k===T?'today':''}" title="${esc(AR_DAY(fromKey(x.k)))}: ${x.v} صنف"><i class="${x.v?'':'zero'}" style="height:${x.v?Math.max(4,Math.round(x.v/dmax*100)):2}%"></i></div>`).join('')}</div>
+    <div class="axis"><span>${esc(AR_SHORT(fromKey(dStart)))}</span><span>${esc(AR_SHORT(fromKey(b)))}</span></div>`;
+
+  // أيام الأسبوع
+  const wSum = Array(7).fill(0), wCnt = Array(7).fill(0);
+  Object.entries(cur).forEach(([k,ls])=>{ wSum[wIdx(k)] += ls.length; wCnt[wIdx(k)]++; });
+  const wAvg = wSum.map((s,i)=>wCnt[i]?s/wCnt[i]:0), wmax = Math.max(0.01,...wAvg);
+  const weekly = `<div class="chart wide" style="height:90px">${wAvg.map((v,i)=>`<div class="col" title="${WEEK[i]}: متوسط ${v.toFixed(1)}"><i class="${v?'':'zero'}" style="height:${v?Math.max(4,Math.round(v/wmax*100)):2}%"></i></div>`).join('')}</div>
+    <div class="lbls">${WEEK.map(w=>`<span>${w}</span>`).join('')}</div>`;
+  const topW = wAvg.indexOf(Math.max(...wAvg));
+
+  // آخر 12 شهر
+  const months = [];
+  for (let i=11;i>=0;i--){ const d=fromKey(T.slice(0,8)+'01'); d.setMonth(d.getMonth()-i); months.push(KEY(d).slice(0,7)); }
+  const mv = months.map(m=>state.records.filter(r=>recDate(r).slice(0,7)===m).reduce((s,r)=>s+recLines(r).length,0));
+  const mmax = Math.max(1,...mv);
+  const monthly = `<div class="chart wide" style="height:90px">${mv.map((v,i)=>`<div class="col ${i===11?'today':''}" title="${esc(AR_MONTH(fromKey(months[i]+'-01')))}: ${v}"><i class="${v?'':'zero'}" style="height:${v?Math.max(4,Math.round(v/mmax*100)):2}%"></i></div>`).join('')}</div>
+    <div class="lbls">${months.map(m=>`<span>${esc(AR_MON(fromKey(m+'-01')))}</span>`).join('')}</div>`;
+
+  // الأصناف
+  const per = {};
+  Object.entries(cur).forEach(([k,ls])=>{
+    const seen = new Set();
+    ls.forEach(l=>{
+      const p = per[l.name] || (per[l.name]={n:0,z:0,last:k,cat:catOf(l),sup:supOf(l)});
+      if (!seen.has(l.name)){ p.n++; seen.add(l.name); }
+      if (isZero(l)) p.z++;
+      if (k>p.last) p.last=k;
+    });
+  });
+  const ent = Object.entries(per);
+  const top = ent.slice().sort((x,y)=>y[1].n-x[1].n || y[1].z-x[1].z).slice(0,25);
+  const ztop = ent.filter(e=>e[1].z).sort((x,y)=>y[1].z-x[1].z).slice(0,15);
+  const max = top[0]?.[1].n || 1, zmax = ztop[0]?.[1].z || 1;
+  const itemRow = ([n,p],ix,val,vmax,red) => {
+    const h = HIST[n];
+    const sub = [`آخر مرة ${AR_SHORT(fromKey(p.last))}`, h?.gap ? `بينقص كل ~${Math.max(1,Math.round(h.gap))} يوم` : ''].filter(Boolean).join(' • ');
+    return `<div class="stat click" data-item="${esc(n)}"><span class="rank">${ix+1}</span><span class="nm"><span class="en">${esc(n)}</span><small>${esc(sub)}</small></span>
+      <span class="meter"><i style="width:${Math.round(val/vmax*100)}%${red?';background:var(--alert)':''}"></i></span><span class="v">${val}</span></div>`;
+  };
+
+  // متوقع ينقص
+  const due = dueList(false).slice(0,12);
+
+  // التصنيف والمورد
+  const group = fn => { const m={}; Object.values(cur).flat().forEach(l=>{ const g=fn(l)||'بدون مورد'; m[g]=(m[g]||0)+1; }); return Object.entries(m).sort((x,y)=>y[1]-x[1]); };
+  const cats = group(catOf), sups = group(supOf);
+  const bars = arr => { const mx = arr[0]?.[1]||1; return arr.map(([n,c])=>`<div class="stat"><span class="nm">${esc(n)}</span><span class="meter"><i style="width:${Math.round(c/mx*100)}%"></i></span><span class="v">${c}</span></div>`).join(''); };
+
+  $('#statsBox').innerHTML = `
+    <div class="kpis">
+      <div class="kpi"><b>${K.days}</b><span>يوم فيه نواقص</span>${delta(K.days,P.days)}</div>
+      <div class="kpi"><b>${K.avg.toFixed(1)}</b><span>متوسط أصناف في اليوم</span>${delta(K.avg,P.avg)}</div>
+      <div class="kpi"><b>${K.lines}</b><span>مرة نقص صنف</span>${delta(K.lines,P.lines)}</div>
+      <div class="kpi"><b style="color:var(--alert)">${K.zero}</b><span>مرة مفيش منه خالص</span>${delta(K.zero,P.zero)}</div>
+    </div>
+
+    ${due.length?`<h3 class="sec">غالبًا خلصوا النهارده — بينقصوا بانتظام وفات ميعادهم</h3>
+    <div class="card">${due.map(({i,h})=>`<div class="stat"><span class="nm"><span class="en">${esc(i.name)}</span><small>آخر مرة ${esc(AR_SHORT(fromKey(h.lastDate)))} • بينقص كل ~${Math.max(1,Math.round(h.gap))} يوم</small></span>
+      <button class="addq" data-add="${i.id}" ${state.draft[i.id]?'disabled':''}>${state.draft[i.id]?'اتضاف':'+ ضيف'}</button></div>`).join('')}</div>`:''}
+
+    <h3 class="sec">النواقص يوم بيوم${len>90?' (آخر 90 يوم)':''}</h3>
+    <div class="card">${daily}</div>
+
+    <h3 class="sec">أيام الأسبوع (متوسط الأصناف)${wSum.some(Boolean)?` — أعلى يوم: ${WEEK[topW]}`:''}</h3>
+    <div class="card">${weekly}</div>
+
+    <h3 class="sec">آخر 12 شهر</h3>
+    <div class="card">${monthly}</div>
+
+    ${top.length?`<h3 class="sec">الأصناف اللي بتنقص أكتر (عدد الأيام) — دوس على الصنف تشوف أيامه</h3>
+    <div class="card">${top.map((e,ix)=>itemRow(e,ix,e[1].n,max,false)).join('')}</div>`:''}
+
+    ${ztop.length?`<h3 class="sec">الأصناف اللي بتخلص خالص أكتر</h3>
+    <div class="card">${ztop.map((e,ix)=>itemRow(e,ix,e[1].z,zmax,true)).join('')}</div>`:''}
+
+    ${cats.length?`<h3 class="sec">حسب التصنيف</h3><div class="card">${bars(cats)}</div>`:''}
+    ${sups.length && !(sups.length===1 && sups[0][0]==='بدون مورد')?`<h3 class="sec">حسب المورد</h3><div class="card">${bars(sups)}</div>`:''}
+  `;
+  $$('#statsBox [data-item]').forEach(e=>e.onclick=()=>archiveForItem(e.dataset.item));
+  $$('#statsBox [data-add]').forEach(b=>b.onclick=()=>{ pick(b.dataset.add); b.disabled=true; b.textContent='اتضاف'; renderChips(); toast('اتضاف لكشف النهارده'); });
+}
+
+/* ============================================================
+   الإعدادات
+   ============================================================ */
+function applyBig(){ document.body.classList.toggle('big', !!state.settings.big); }
+function renderSettings(){
+  $('#setName').value = state.settings.name||'';
+  $('#setWa').value = state.settings.wa||'';
+  $('#setBig').checked = !!state.settings.big;
+  const lb = state.settings.lastBackup;
+  $('#bkInfo').textContent = lb ? `آخر نسخة: ${AR_DAY(new Date(lb))}.` : '';
+  $('#dbInfo').innerHTML = state.mode==='cloud'
+    ? 'متصل بـ Firebase — كشف النهارده بيتزامن لحظة بلحظة بين كل الأجهزة، وبيشتغل أوفلاين ويرفع لما النت يرجع.'
+    : 'شغّال على ذاكرة المتصفح. البيانات على الجهاز ده بس. لتفعيل المزامنة، حط بيانات Firebase في أول ملف index.html.';
+}
+$('#setBig').onchange = e=>{ state.settings.big = e.target.checked; LS.set('settings', state.settings); applyBig(); };
+$('#saveSet').onclick = ()=>{
+  state.settings = { ...state.settings, name: $('#setName').value.trim(), wa: $('#setWa').value.replace(/\D/g,''), big: $('#setBig').checked };
+  LS.set('settings', state.settings);
+  $('#phName').textContent = state.settings.name || 'نواقص الصيدلية';
+  applyBig(); toast('اتحفظ ✓');
+};
+function exportJson(){
+  flush();
+  const blob = new Blob([JSON.stringify({items:state.items,records:state.records,suppliers:state.suppliers,settings:state.settings},null,1)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`pharmacy-backup-${state.today}.json`; a.click();
+  state.settings.lastBackup = Date.now(); LS.set('settings', state.settings);
+  renderReminders(); if ($('#v-set').classList.contains('on')) renderSettings();
+}
+$('#expJson').onclick = exportJson;
+$('#impJson').onclick = ()=>$('#impFile').click();
+$('#impFile').onchange = e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=()=>{ try{
+    const d=JSON.parse(rd.result);
+    if(d.items) state.items=d.items; if(d.records) state.records=d.records;
+    if(d.suppliers) state.suppliers=d.suppliers; if(d.settings) state.settings={...state.settings, ...d.settings};
+    LS.set('settings', state.settings);
+    if (state.mode==='cloud'){ d.records?.forEach(r=>recordPut(r)); d.items?.forEach(i=>itemSave(i)); }
+    sortRecords(); saveLocal(); startDay(); renderAll(); toast('اتستعادت ✓');
+  }catch(err){ console.error(err); toast('الملف مش سليم'); } };
+  rd.readAsText(f);
+};
+
+/* ---------- misc ---------- */
+let tT;
+function toast(m, undo){
+  const t=$('#toast');
+  t.innerHTML = `<span>${esc(m)}</span>` + (undo ? '<button type="button">تراجع</button>' : '');
+  t.classList.toggle('act', !!undo);
+  t.classList.add('on');
+  if (undo) t.querySelector('button').onclick = ()=>{ undo(); t.classList.remove('on','act'); clearTimeout(tT); };
+  clearTimeout(tT); tT=setTimeout(()=>t.classList.remove('on','act'), undo?6000:2400);
+}
+
+function renderAll(){
+  $('#phName').textContent = state.settings.name || 'نواقص الصيدلية';
+  state.items.sort((a,b)=>a.name.localeCompare(b.name));
+  renderReminders(); renderChips(); renderSupFilter(); renderList(); renderBar();
+  const v = $('nav button[aria-current="true"]')?.dataset.v;
+  if (v==='arch') renderArchive(); if (v==='stats') renderStats();
+}
+
+boot();
+</script>
+</body>
+</html>
